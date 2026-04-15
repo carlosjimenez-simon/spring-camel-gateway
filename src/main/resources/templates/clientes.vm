@@ -1,0 +1,4 @@
+<ClienteRequest>
+    <id>${body.get("id")}</id>
+    <nombre>${body.get("nombre")}</nombre>
+</ClienteRequest>

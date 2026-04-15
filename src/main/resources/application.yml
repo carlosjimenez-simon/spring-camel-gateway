@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spring-camel-gateway
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        health-check-path: /actuator/health
+        instance-id: ${spring.application.name}:${random.value}
+camel:
+  servlet:
+    mapping:
+      context-path: /gateway/*
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, camelroutes

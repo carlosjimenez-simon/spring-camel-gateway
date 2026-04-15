@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mun="http://www.mundialseguros.com.co/">
+    <soap:Body>
+        <mun:ExpedirPolizaRcYAp>
+            <mun:jsonData><![CDATA[${body}]]></mun:jsonData>
+        </mun:ExpedirPolizaRcYAp>
+    </soap:Body>
+</soap:Envelope>
