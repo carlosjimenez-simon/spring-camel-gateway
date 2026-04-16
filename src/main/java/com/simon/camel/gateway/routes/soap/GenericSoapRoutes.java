@@ -18,28 +18,42 @@ public class GenericSoapRoutes extends RouteBuilder {
                 .to("direct:procesar-plantilla");
 
         // 2. Lógica Maestra
-     // 2. Lógica Maestra
         from("direct:procesar-plantilla")
             .routeId("logic-velocity")
-            
             // Aseguramos que el body sea un Mapa para Velocity
             .convertBodyTo(Map.class)
-            
             .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion}")
             
-            // 2. Cargamos la plantilla dinámicamente usando AMBOS headers
-            // La ruta final será: templates/test/clientes.vm o templates/seguros_mundial/expedir.vm
+            // 2. Cargamos la plantilla dinámicamente
             .toD("velocity:templates/${header.organizacion}/${header.operacion}.vm")
-            
-            // 3. Headers y envío
             .removeHeaders("CamelHttp*")
             .setHeader("Content-Type", constant("application/xml"))
-            
-            // TIP: Aquí podrías usar un switch o un bean para cambiar la URL de destino 
-            // según la organización si no quieres enviarlo todo al mismo sitio.
             .log("XML generado para ${header.organizacion}: ${body}")
             
             .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true")
-            .log("Respuesta recibida: ${body}");
+            .log("Respuesta recibida: ${body}")
+            
+            // Convertimos el XML String a un Map de Java para que el process pueda leerlo
+            .unmarshal().jacksonXml(Map.class) 
+            
+            .process(exchange -> {
+                Map<String, Object> map = exchange.getIn().getBody(Map.class);
+                if (map != null && !map.isEmpty()) {
+                    // Tomamos el primer valor (usualmente el contenido del Body)
+                    Object firstChild = map.values().iterator().next();
+                    exchange.getIn().setBody(firstChild);
+                }
+            })
+
+            // 3. Convertimos a JSON String explícitamente
+            .marshal().json(JsonLibrary.Jackson)
+            .convertBodyTo(String.class)
+
+            // 4. LIMPIEZA TOTAL DE HEADERS
+            // Eliminamos todo lo que pudo venir del servicio SOAP que confunda a Postman
+            .removeHeaders("*", "breadcrumbId", "organizacion", "operacion") 
+            .setHeader("Content-Type", constant("application/json"))
+            
+            .log("Enviando a Postman: ${body}");
     }
 }

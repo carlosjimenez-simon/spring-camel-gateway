@@ -26,6 +26,5 @@ simon:
   endpoint:
     test:
       clientes: http://localhost:8081/ws/clientes
-    seguros_mundial:
-      compra: https://api.mundialseguros.com.co/SOAT.asmx
-      consulta: https://api.mundialseguros.com.co/Consultas.asmx
+    seguros-mundial:
+      consulta-vehiculo-RCE-homologado: http://localhost:8081/SOATMundial.asmx

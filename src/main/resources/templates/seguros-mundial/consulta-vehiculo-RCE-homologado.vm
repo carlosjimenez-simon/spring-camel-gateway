@@ -1,0 +1,10 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:mun="http://www.mundialseguros.com.co/">
+   <soap:Header/>
+   <soap:Body>
+      <mun:ConsultaVehiculoRCEHomologado>
+         <mun:placa>${body.get("placa")}</mun:placa>
+         <mun:puntoVta>${body.get("puntoVta")}</mun:puntoVta>
+         <mun:rcObligatorio>${body.get("rcObligatorio")}</mun:rcObligatorio>
+      </mun:ConsultaVehiculoRCEHomologado>
+   </soap:Body>
+</soap:Envelope>
