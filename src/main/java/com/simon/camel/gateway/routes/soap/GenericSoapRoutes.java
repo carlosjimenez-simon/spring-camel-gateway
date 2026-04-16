@@ -46,8 +46,8 @@ public class GenericSoapRoutes extends RouteBuilder {
             })
 
             // 3. Convertimos a JSON String explícitamente
-            .marshal().json(JsonLibrary.Jackson)
-            .convertBodyTo(String.class)
+            //.marshal().json(JsonLibrary.Jackson)
+            //.convertBodyTo(String.class)
 
             // 4. LIMPIEZA TOTAL DE HEADERS
             // Eliminamos todo lo que pudo venir del servicio SOAP que confunda a Postman
