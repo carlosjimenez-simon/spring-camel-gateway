@@ -20,20 +20,28 @@ public class GenericSoapRoutes extends RouteBuilder {
         // 2. Lógica Maestra
         from("direct:procesar-plantilla")
             .routeId("logic-velocity")
-            // Aseguramos que el body sea un Mapa para Velocity
+            // 3. Aseguramos que el body sea un Mapa para Velocity
             .convertBodyTo(Map.class)
             .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion}")
             
-            // 2. Cargamos la plantilla dinámicamente
+            // 4. Llamamos al procesador de headers
+            .process("headerProcessor") 
+            
+            .log("Headers procesados: ${headers}")
+            .log("Datos para plantilla: ${body}")
+            
+            // 5. Cargamos la plantilla dinámicamente
             .toD("velocity:templates/${header.organizacion}/${header.operacion}.vm")
+            
+            // 6. Limpieza estándar de Camel
             .removeHeaders("CamelHttp*")
-            .setHeader("Content-Type", constant("application/xml"))
+            .setHeader("Content-Type", constant("application/soap+xml; charset=utf-8"))
             .log("XML generado para ${header.organizacion}: ${body}")
             
             .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true")
             .log("Respuesta recibida: ${body}")
             
-            // Convertimos el XML String a un Map de Java para que el process pueda leerlo
+            // 7. Convertimos el XML String a un Map de Java para que el process pueda leerlo
             .unmarshal().jacksonXml(Map.class) 
             
             .process(exchange -> {
@@ -45,12 +53,7 @@ public class GenericSoapRoutes extends RouteBuilder {
                 }
             })
 
-            // 3. Convertimos a JSON String explícitamente
-            //.marshal().json(JsonLibrary.Jackson)
-            //.convertBodyTo(String.class)
-
             // 4. LIMPIEZA TOTAL DE HEADERS
-            // Eliminamos todo lo que pudo venir del servicio SOAP que confunda a Postman
             .removeHeaders("*", "breadcrumbId", "organizacion", "operacion") 
             .setHeader("Content-Type", constant("application/json"))
             

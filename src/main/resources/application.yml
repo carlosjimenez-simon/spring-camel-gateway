@@ -27,4 +27,4 @@ simon:
     test:
       clientes: http://localhost:8081/ws/clientes
     seguros-mundial:
-      consulta-vehiculo-RCE-homologado: http://localhost:8081/SOATMundial.asmx
+      consulta-vehiculo-RCE-homologado: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
