@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <AnularPolizaXML xmlns="http://www.mundialseguros.com.co/">
+      <modelo>
+        <nro_formulario>${body.get("nroFormulario")}</nro_formulario>
+        <cod_suc>${body.get("codSuc")}</cod_suc>
+        <cod_tipo_agente>${body.get("codTipoAgente")}</cod_tipo_agente>
+        <cod_agente>${body.get("codAgente")}</cod_agente>
+        <cod_pto_vta>${body.get("codPtoVta")}</cod_pto_vta>
+        <cod_grupo_endo>${body.get("codGrupoEndo")}</cod_grupo_endo>
+        <cod_motivo>${body.get("codMotivo")}</cod_motivo>
+        <cod_usuario_solicitud>${body.get("usuario")}</cod_usuario_solicitud>
+        <txt_patente>${body.get("placa")}</txt_patente>
+        <fec_anulacion>${body.get("fechaAnulacion")}</fec_anulacion>
+      </modelo>
+    </AnularPolizaXML>
+  </soap:Body>
+</soap:Envelope>

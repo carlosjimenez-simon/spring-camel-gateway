@@ -24,6 +24,10 @@ public class GenericSoapRoutes extends RouteBuilder {
             .convertBodyTo(Map.class)
             .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion}")
             
+            .setHeader("TechnicalAction", simple("${body[function-end-point]}"))
+            
+            .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion} - TechAction: ${header.TechnicalAction}")
+            
             // 4. Llamamos al procesador de headers
             .process("headerProcessor") 
             
@@ -35,7 +39,13 @@ public class GenericSoapRoutes extends RouteBuilder {
             
             // 6. Limpieza estándar de Camel
             .removeHeaders("CamelHttp*")
-            .setHeader("Content-Type", constant("application/soap+xml; charset=utf-8"))
+            
+            
+            
+            .setHeader("Content-Type", constant("text/xml; charset=utf-8"))
+            //.setHeader("SOAPAction", simple("http://www.mundialseguros.com.co/${header.operacion}"))
+            .setHeader("SOAPAction", simple("http://www.mundialseguros.com.co/${header.TechnicalAction}"))
+	        
             .log("XML generado para ${header.organizacion}: ${body}")
             
             .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true")

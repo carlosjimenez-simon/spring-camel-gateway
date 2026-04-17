@@ -28,3 +28,7 @@ simon:
       clientes: http://localhost:8081/ws/clientes
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
+      anular-poliza: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
+      calcular-poliza: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
+      confirmar-expedicion: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
+      consulta-vehiculo-RCE: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
