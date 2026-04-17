@@ -6,7 +6,7 @@ spring:
     name: spring-camel-gateway
   cloud:
     consul:
-      host: localhost
+      host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
       port: 8500
       discovery:
         health-check-path: /actuator/health

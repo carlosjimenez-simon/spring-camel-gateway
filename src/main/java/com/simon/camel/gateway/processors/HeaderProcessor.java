@@ -4,6 +4,7 @@ package com.simon.camel.gateway.processors;
 
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
 
@@ -24,45 +25,65 @@ public class HeaderProcessor implements Processor {
         Map<String, Object> datos = (Map<String, Object>) body.get("datos");
 
         String function = (String) headerConfig.get("function");
+        List<Map<String, String>> params = (List<Map<String, String>>) headerConfig.get("function-parameters");
 
         // Centralizamos la creación de headers por cliente
         if ("createHeaderSegurosMundial".equals(function)) {
-            aplicarSeguridadMundial(exchange, datos);
+            // Buscamos el valor del secret-name dentro de los parámetros
+            String secretName = params.stream()
+                .filter(p -> "secret-name".equals(p.get("name")))
+                .map(p -> p.get("value"))
+                .findFirst()
+                .orElse("default/secret");
+
+            aplicarSeguridadMundial(exchange, datos, secretName);
         }
 
-        // Dejamos el body listo para Velocity
         exchange.getIn().setBody(datos);
     }
 
-    private void aplicarSeguridadMundial(Exchange exchange, Map<String, Object> datos) throws Exception {
-        // 1. Datos base y Credenciales
+    private void aplicarSeguridadMundial(Exchange exchange, Map<String, Object> datos, String secretName) throws Exception {
+        // 1. Aquí llamarías a tu servicio de Secret Manager usando el 'secretName'
+        // Por ahora simulamos que el servicio nos devuelve un mapa con las llaves
+        Map<String, String> secrets = mockSecretManager(secretName);
+
         String timeStamp = String.valueOf(System.currentTimeMillis() / 1000L);
-        String clientId = "M2pxta1sNmqbnxFtp/wLpTMoNTXEolk48u3M21vs5G2AgQEZFQXj6g=="; // Esto vendrá de Secrets
-        String secret = "qtOtjv5F8jDgvychanjI01PhZkXS+4KEtgXKbL23uXw="; // Key para la firma HMAC
-        
-        // Variables para el Basic Auth (Próximamente desde properties/secrets)
-        String usuario = "usrWSSoapSoatSimProm"; 
-        String password = "Ipe3r660CZCa";
+        String clientId = secrets.get("clientId");
+        String secretKey = secrets.get("clientSecret"); // La llave para el HMAC
+        String usuario = secrets.get("username");
+        String password = secrets.get("password");
         
         String placa = (String) datos.get("placa");
 
         // 2. Cálculo de la Firma (HMAC-SHA256)
-        // Según manual: timeStamp + "." + clientId + "." + placa
         String message = timeStamp + "." + clientId + "." + placa;
-        String firma = calcularHMACSHA256(message, secret);
+        String firma = calcularHMACSHA256(message, secretKey);
 
-        // 3. Cálculo dinámico de Authorization (Base64)
+        // 3. Cálculo dinámico de Authorization
         String authRaw = usuario + ":" + password;
         String authHeader = "Basic " + Base64.getEncoder().encodeToString(authRaw.getBytes(StandardCharsets.UTF_8));
 
-        // 4. Inyectamos los 4 headers obligatorios
+        // 4. Inyeccion de Headers
         exchange.getIn().setHeader("X-MUN-TIMESTAMP", timeStamp);
         exchange.getIn().setHeader("X-MUN-CLIENT", clientId);
         exchange.getIn().setHeader("X-MUN-SIGN", firma);
         exchange.getIn().setHeader("Authorization", authHeader);
         
-        // Log de auditoría
-        System.out.println("Seguridad Mundial aplicada. Placa: " + placa + " | TS: " + timeStamp);
+        System.out.println("Seguridad aplicada desde Secret: " + secretName + " | Placa: " + placa);
+    }
+
+    // Método simulado - Aquí iría la integración con AWS Secrets Manager o similar
+    private Map<String, String> mockSecretManager(String secretPath) {
+        // En la vida real, aquí harías: return awsSecretsClient.getSecret(secretPath);
+        if ("dev/polizas/mundial-seguros".equals(secretPath)) {
+            return Map.of(
+                "clientId", "M2pxta1sNmqbnxFtp/wLpTMoNTXEolk48u3M21vs5G2AgQEZFQXj6g==",
+                "clientSecret", "qtOtjv5F8jDgvychanjI01PhZkXS+4KEtgXKbL23uXw=",
+                "username", "usrWSSoapSoatSimProm",
+                "password", "Ipe3r660CZCa"
+            );
+        }
+        return Map.of();
     }
 
     private String calcularHMACSHA256(String data, String key) throws Exception {
