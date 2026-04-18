@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <ExpedirPolizaSegurisimo xmlns="http://www.mundialseguros.com.co/">
+      <modelo>
+        <id_consulta>${body.get("idConsulta")}</id_consulta>
+        <cod_ramo>${body.get("codRamo")}</cod_ramo>
+        <nro_poliza>${body.get("nroPoliza")}</nro_poliza>
+        <imp_prima_total>${body.get("primaTotal")}</imp_prima_total>
+        <sn_cotizacion>${body.get("esCotizacion")}</sn_cotizacion>
+        <cod_suc>${body.get("codSuc")}</cod_suc>
+        <cod_pto_vta>${body.get("codPtoVta")}</cod_pto_vta>
+        <cod_agente>${body.get("codAgente")}</cod_agente>
+        <cod_grupo_endo>${body.get("codGrupoEndo")}</cod_grupo_endo>
+        <nro_formulario>${body.get("nroFormulario")}</nro_formulario>
+        
+        <poliza_soat>
+          <informacion_vehiculo>
+            <aaaa_modelo>${body.get("modeloAnio")}</aaaa_modelo>
+            <txt_patente>${body.get("placa")}</txt_patente>
+            <txt_motor>${body.get("motor")}</txt_motor>
+            <txt_chasis>${body.get("chasis")}</txt_chasis>
+            <cod_clase_soat>${body.get("claseSoat")}</cod_clase_soat>
+          </informacion_vehiculo>
+        </poliza_soat>
+
+        <poliza_rc>
+          <informacion_vehiculo>
+            <txt_patente>${body.get("placa")}</txt_patente>
+            <cilindraje>${body.get("cilindraje")}</cilindraje>
+            <modelo>${body.get("modeloAnio")}</modelo>
+          </informacion_vehiculo>
+        </poliza_rc>
+
+        <informacion_pago>
+          <imp_pagado>${body.get("primaTotal")}</imp_pagado>
+          <for_pago>${body.get("formaPago")}</for_pago>
+        </informacion_pago>
+        <sn_aplica_recaudo>${body.get("aplicaRecaudo")}</sn_aplica_recaudo>
+      </modelo>
+    </ExpedirPolizaSegurisimo>
+  </soap12:Body>
+</soap12:Envelope>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <ConsultarPropietarios xmlns="http://www.mundialseguros.com.co/">
+      <idRunt>${body.get("idRunt")}</idRunt>
+      <documento>${body.get("nroDoc")}</documento>
+      <tipoDoc>${body.get("tipoDoc")}</tipoDoc>
+      <placa>${body.get("placa")}</placa>
+      <codSuc>${body.get("codSuc")}</codSuc>
+      <puntoVta>${body.get("codPtoVta")}</puntoVta>
+    </ConsultarPropietarios>
+  </soap12:Body>
+</soap12:Envelope>
