@@ -1,10 +1,10 @@
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:mun="http://www.mundialseguros.com.co/">
-   <soap:Header/>
-   <soap:Body>
-      <mun:ConsultaVehiculoRCEHomologado>
-         <mun:placa>${body.get("placa")}</mun:placa>
-         <mun:puntoVta>${body.get("puntoVta")}</mun:puntoVta>
-         <mun:rcObligatorio>${body.get("rcObligatorio")}</mun:rcObligatorio>
-      </mun:ConsultaVehiculoRCEHomologado>
-   </soap:Body>
-</soap:Envelope>
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <ConsultaVehiculoRCEHomologado xmlns="http://www.mundialseguros.com.co/">
+      <placa>${body.get("placa")}</placa>
+      <puntoVta>${body.get("puntoVta")}</puntoVta>
+      <rcObligatorio>${body.get("rcObligatorio")}</rcObligatorio>
+    </ConsultaVehiculoRCEHomologado>
+  </soap12:Body>
+</soap12:Envelope>

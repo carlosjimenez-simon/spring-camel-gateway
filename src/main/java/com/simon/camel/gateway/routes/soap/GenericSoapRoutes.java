@@ -42,8 +42,10 @@ public class GenericSoapRoutes extends RouteBuilder {
             
             
             
-            .setHeader("Content-Type", constant("text/xml; charset=utf-8"))
+            //.setHeader("Content-Type", constant("text/xml; charset=utf-8"))
             //.setHeader("SOAPAction", simple("http://www.mundialseguros.com.co/${header.operacion}"))
+            // CONFIGURACIÓN PARA SOAP 1.2
+            .setHeader("Content-Type", simple("application/soap+xml; charset=utf-8; action=\"http://www.mundialseguros.com.co/${header.TechnicalAction}\""))
             .setHeader("SOAPAction", simple("http://www.mundialseguros.com.co/${header.TechnicalAction}"))
 	        
             .log("XML generado para ${header.organizacion}: ${body}")

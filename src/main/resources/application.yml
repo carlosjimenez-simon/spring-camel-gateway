@@ -6,7 +6,8 @@ spring:
     name: spring-camel-gateway
   cloud:
     consul:
-      host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
+      #host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
+      host: localhost
       port: 8500
       discovery:
         health-check-path: /actuator/health
@@ -33,3 +34,4 @@ simon:
       confirmar-expedicion: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
       consulta-vehiculo-RCE: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
       consultar-convenio: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
+      calcular-corto-plazo: https://preprodsoapwssoatyapconsultarunt.mundialseguros.com.co:8443/SOATMundial.asmx
