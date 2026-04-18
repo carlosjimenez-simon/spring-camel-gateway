@@ -25,6 +25,10 @@ management:
 
 simon:
   endpoint:
+    refactor-dev:
+      devices: https://api.refactor.dev.internal:9090/api-refactor/devices
+    datos-colombia:
+      lista-paquetes: https://datosabiertos.bogota.gov.co/api/3/action/package_list
     test:
       clientes: http://localhost:8081/ws/clientes
     seguros-mundial:

@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import software.amazon.awssdk.regions.Region;
@@ -20,15 +21,19 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simon.camel.gateway.services.AmazonSecretsService;
 
 @Component("headerProcessor")
-public class HeaderProcessor implements Processor {
+public class SoapHeaderProcessor implements Processor {
 	
 	private final SecretsManagerClient secretsClient = SecretsManagerClient.builder()
             .region(Region.US_EAST_1) // Cambia a tu región de AWS
             .build();
             
     private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    @Autowired
+    private AmazonSecretsService _secretsService;
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -57,7 +62,7 @@ public class HeaderProcessor implements Processor {
     private void aplicarSeguridadMundial(Exchange exchange, Map<String, Object> datos, String secretName) throws Exception {
         // 1. Aquí llamarías a tu servicio de Secret Manager usando el 'secretName'
         // Por ahora simulamos que el servicio nos devuelve un mapa con las llaves
-        Map<String, String> secrets = getAwsSecret(secretName);
+        Map<String, String> secrets = _secretsService.getAwsSecret(secretName);
 
         String timeStamp = String.valueOf(System.currentTimeMillis() / 1000L);
         String clientId = secrets.get("clientId");
@@ -82,24 +87,6 @@ public class HeaderProcessor implements Processor {
         exchange.getIn().setHeader("Authorization", authHeader);
         
         System.out.println("Seguridad aplicada desde Secret: " + secretName + " | Placa: " + placa);
-    }
-
-    private Map<String, String> getAwsSecret(String secretName) {
-        try {
-            GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
-                    .secretId(secretName)
-                    .build();
-
-            GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
-            String secretString = valueResponse.secretString();
-
-            // Convertimos el JSON que devuelve AWS en un Map de Java
-            return objectMapper.readValue(secretString, Map.class);
-            
-        } catch (Exception e) {
-            System.err.println("Error obteniendo secreto de AWS (" + secretName + "): " + e.getMessage());
-            return Map.of(); // O maneja una excepción personalizada
-        }
     }
 
     private String calcularHMACSHA256(String data, String key) throws Exception {
