@@ -23,7 +23,8 @@ public class SegurosMundialStrategy implements ISoapSecurityStrategy {
     @Override
     public String getFunctionName() { return "createHeaderSegurosMundial"; }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void apply(Exchange exchange, Map<String, Object> headerConfig, Map<String, Object> datos) throws Exception {
         List<Map<String, String>> params = (List<Map<String, String>>) headerConfig.get("function-parameters");
         
