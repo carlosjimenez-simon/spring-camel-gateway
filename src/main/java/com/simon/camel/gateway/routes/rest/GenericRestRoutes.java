@@ -37,6 +37,8 @@ public class GenericRestRoutes extends RouteBuilder {
 	        // 2. Procesador de seguridad (AWS Secrets, Auth, etc.)
 	        .process("restHeaderProcessor") 
 	        
+	        .marshal().json(JsonLibrary.Jackson)
+	        
 	        // 3. LIMPIEZA TOTAL: Eliminamos headers de Camel y quemados como el Origin
 	        .removeHeaders("CamelHttp*")
 	        .removeHeaders("Host")
@@ -49,7 +51,7 @@ public class GenericRestRoutes extends RouteBuilder {
 	        .setHeader("CamelHttpMethod", header("MetodoDestino"))
 	        
 	        // 5. Invocación dinámica con el bypass de SSL para entornos internos/inseguros
-	        .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false&x509HostnameVerifier=allowAllHostnameVerifier")
+	        .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false")
 	        
 	        // 6. Manejo de respuesta
 	        .convertBodyTo(String.class) 

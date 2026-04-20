@@ -6,8 +6,7 @@ spring:
     name: spring-camel-gateway
   cloud:
     consul:
-      #host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
-      host: localhost
+      host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
       port: 8500
       discovery:
         health-check-path: /actuator/health
@@ -25,6 +24,8 @@ management:
 
 simon:
   endpoint:
+    fineract:
+      search-clients: https://demo.mifos.io/fineract-provider/api/v2/clients/search
     refactor-dev:
       devices: https://api.refactor.dev.internal:9090/api-refactor/devices
     datos-colombia:
