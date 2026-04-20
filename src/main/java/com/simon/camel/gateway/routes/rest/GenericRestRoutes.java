@@ -37,6 +37,8 @@ public class GenericRestRoutes extends RouteBuilder {
 	        // 2. Procesador de seguridad (AWS Secrets, Auth, etc.)
 	        .process("restHeaderProcessor") 
 	        
+	        .log("Headers tras estrategia: ${headers[Authorization]} - Tenant: ${headers[Fineract-Platform-TenantId]}")
+	        
 	        .marshal().json(JsonLibrary.Jackson)
 	        
 	        // 3. LIMPIEZA TOTAL: Eliminamos headers de Camel y quemados como el Origin
