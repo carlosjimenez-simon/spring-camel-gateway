@@ -1,37 +1,30 @@
 package com.simon.camel.gateway.processors;
 
 
-
-
-import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.nio.charset.StandardCharsets;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simon.camel.gateway.services.AmazonSecretsService;
+import com.simon.camel.gateway.strategy.soap.ISoapSecurityStrategy;
 
 @Component("headerProcessor")
 public class SoapHeaderProcessor implements Processor {
 	
-	private final SecretsManagerClient secretsClient = SecretsManagerClient.builder()
-            .region(Region.US_EAST_1) // Cambia a tu región de AWS
-            .build();
-            
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    
+	private final Map<String, ISoapSecurityStrategy> strategies = new HashMap<>();
+
+    @Autowired
+    public SoapHeaderProcessor(List<ISoapSecurityStrategy> strategyList) {
+        for (ISoapSecurityStrategy strategy : strategyList) {
+            strategies.put(strategy.getFunctionName(), strategy);
+        }
+    }
+	
     @Autowired
     private AmazonSecretsService _secretsService;
 
@@ -42,59 +35,13 @@ public class SoapHeaderProcessor implements Processor {
         Map<String, Object> datos = (Map<String, Object>) body.get("datos");
 
         String function = (String) headerConfig.get("function");
-        List<Map<String, String>> params = (List<Map<String, String>>) headerConfig.get("function-parameters");
 
-        // Centralizamos la creación de headers por cliente
-        if ("createHeaderSegurosMundial".equals(function)) {
-            // Buscamos el valor del secret-name dentro de los parámetros
-            String secretName = params.stream()
-                .filter(p -> "secret-name".equals(p.get("name")))
-                .map(p -> p.get("value"))
-                .findFirst()
-                .orElse("default/secret");
-
-            aplicarSeguridadMundial(exchange, datos, secretName);
+        ISoapSecurityStrategy strategy = strategies.get(function);
+        if (strategy != null) {
+            strategy.apply(exchange, headerConfig, datos);
         }
 
         exchange.getIn().setBody(datos);
     }
 
-    private void aplicarSeguridadMundial(Exchange exchange, Map<String, Object> datos, String secretName) throws Exception {
-        // 1. Aquí llamarías a tu servicio de Secret Manager usando el 'secretName'
-        // Por ahora simulamos que el servicio nos devuelve un mapa con las llaves
-        Map<String, String> secrets = _secretsService.getAwsSecret(secretName);
-
-        String timeStamp = String.valueOf(System.currentTimeMillis() / 1000L);
-        String clientId = secrets.get("clientId");
-        String secretKey = secrets.get("clientSecret"); // La llave para el HMAC
-        String usuario = secrets.get("username");
-        String password = secrets.get("password");
-        
-        String placa = (String) datos.get("placa");
-
-        // 2. Cálculo de la Firma (HMAC-SHA256)
-        String message = timeStamp + "." + clientId + "." + placa;
-        String firma = calcularHMACSHA256(message, secretKey);
-
-        // 3. Cálculo dinámico de Authorization
-        String authRaw = usuario + ":" + password;
-        String authHeader = "Basic " + Base64.getEncoder().encodeToString(authRaw.getBytes(StandardCharsets.UTF_8));
-
-        // 4. Inyeccion de Headers
-        exchange.getIn().setHeader("X-MUN-TIMESTAMP", timeStamp);
-        exchange.getIn().setHeader("X-MUN-CLIENT", clientId);
-        exchange.getIn().setHeader("X-MUN-SIGN", firma);
-        exchange.getIn().setHeader("Authorization", authHeader);
-        
-        System.out.println("Seguridad aplicada desde Secret: " + secretName + " | Placa: " + placa);
-    }
-
-    private String calcularHMACSHA256(String data, String key) throws Exception {
-        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-        SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA256");
-        Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(signingKey);
-        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(rawHmac);
-    }
 }
