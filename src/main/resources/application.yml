@@ -12,6 +12,8 @@ spring:
         health-check-path: /actuator/health
         instance-id: ${spring.application.name}:${random.value}
 camel:
+  main:
+    use-breadcrumb: true
   servlet:
     mapping:
       context-path: /simon-sprint-camel/*

@@ -23,7 +23,13 @@ public class GenericRestRoutes extends RouteBuilder {
 
         from("direct:procesar-rest")
 	        .routeId("logic-rest-core")
+	        
+	        // A. CAPTURA INICIAL: Guardamos el Request original antes de cualquier cambio
+            .setProperty("rawRequest", body())
 	        .convertBodyTo(Map.class)
+	        
+	        // B. DINAMISMO: Extraemos qué auditoría usar desde el JSON de entrada
+            .setHeader("audit-implementation", simple("${body[audit-implementation]}"))
 	        
 	        // 1. Extraemos el método dinámico del JSON (Header interno de nuestra App)
 	        .setHeader("MetodoDestino", simple("${body[header][method]}", String.class))
@@ -37,7 +43,7 @@ public class GenericRestRoutes extends RouteBuilder {
 	        // 2. Procesador de seguridad (AWS Secrets, Auth, etc.)
 	        .process("restHeaderProcessor") 
 	        
-	        .log("Headers tras estrategia: ${headers[Authorization]} - Tenant: ${headers[Fineract-Platform-TenantId]}")
+	        .log("ID Transacción: ${header.breadcrumbId} | Headers: Auth=${headers[Authorization]} - Tenant=${headers[Fineract-Platform-TenantId]}")
 	        
 	        .marshal().json(JsonLibrary.Jackson)
 	        
@@ -66,10 +72,16 @@ public class GenericRestRoutes extends RouteBuilder {
 	        .end()
 	
 	        // 7. Limpieza para el cliente final (Postman/App)
-	        .removeHeaders("*", "breadcrumbId", "organizacion", "operacion")
+	        .removeHeaders("*", "breadcrumbId", "organizacion", "operacion", "audit-implementation")
 	        .setHeader("Content-Type", constant("application/json"))
 	        .setHeader("HttpCharacterEncoding", constant("UTF-8"))
 	        
+	        .log("Respuesta REST recibida: ${body}")
+	        
+	        // C. AUDITORÍA DINÁMICA: Enviamos a la ruta puente
+            .wireTap("direct:audit-logic")
+	        
 	        .log("Enviando a Postman: ${body}");
+
     }
 }

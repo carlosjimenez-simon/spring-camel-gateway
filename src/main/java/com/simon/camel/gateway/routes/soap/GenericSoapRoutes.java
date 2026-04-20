@@ -20,8 +20,17 @@ public class GenericSoapRoutes extends RouteBuilder {
         // 2. Lógica Maestra
         from("direct:procesar-plantilla")
             .routeId("logic-velocity")
+            
+            // A. CAPTURA INICIAL: El JSON que llega de Postman
+            .setProperty("rawRequest", body())
+            
+            .log("ID Transacción Recibido: ${header.breadcrumbId}")
             // 3. Aseguramos que el body sea un Mapa para Velocity
             .convertBodyTo(Map.class)
+            
+            // B. ESTRATEGIA: Extraemos qué auditoría usar
+            .setHeader("audit-implementation", simple("${body[audit-implementation]}"))
+            
             .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion}")
             
             .setHeader("TechnicalAction", simple("${body[function-end-point]}"))
@@ -37,6 +46,9 @@ public class GenericSoapRoutes extends RouteBuilder {
             // 5. Cargamos la plantilla dinámicamente
             .toD("velocity:templates/${header.organizacion}/${header.operacion}.vm")
             
+            // C. CAPTURA XML ENVIADO: La plantilla ya renderizada
+            .setProperty("xmlSent", body())
+            
             // 6. Limpieza estándar de Camel
             .removeHeaders("CamelHttp*")
             
@@ -51,6 +63,10 @@ public class GenericSoapRoutes extends RouteBuilder {
             .log("XML generado para ${header.organizacion}: ${body}")
             
             .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true")
+            
+             // D. CAPTURA XML RECIBIDO: Respuesta cruda del proveedor
+            .setProperty("xmlReceived", body())
+            
             .log("Respuesta recibida: ${body}")
             
             // 7. Convertimos el XML String a un Map de Java para que el process pueda leerlo
@@ -65,9 +81,12 @@ public class GenericSoapRoutes extends RouteBuilder {
                 }
             })
 
-            // 4. LIMPIEZA TOTAL DE HEADERS
+            // 8. LIMPIEZA TOTAL DE HEADERS
             .removeHeaders("*", "breadcrumbId", "organizacion", "operacion") 
             .setHeader("Content-Type", constant("application/json"))
+            
+            .log("Respuesta REST recibida: ${body}")
+            .wireTap("direct:audit-logic")
             
             .log("Enviando a Postman: ${body}");
     }
