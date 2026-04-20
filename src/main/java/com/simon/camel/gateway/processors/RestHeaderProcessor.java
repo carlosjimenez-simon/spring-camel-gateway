@@ -19,7 +19,6 @@ public class RestHeaderProcessor implements Processor {
 	
 	@Autowired
     public RestHeaderProcessor(List<IRestSecurityStrategy> strategyList) {
-		System.out.println("Cargando estrategias de seguridad REST...");
         // Mapeamos cada estrategia por su nombre de función
         for (IRestSecurityStrategy strategy : strategyList) {
             strategies.put(strategy.getFunctionName(), strategy);
