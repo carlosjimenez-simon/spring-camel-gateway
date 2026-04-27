@@ -12,7 +12,7 @@ public class GenericSoapRoutes extends RouteBuilder {
     public void configure() throws Exception {
 
     	// 1. La URL
-        rest("/api/v1")
+        rest("/api/v1/soap")
         	.post("/gateway-to/{organizacion}/{operacion}")
                 .routeId("generic-soap-gateway")
                 .to("direct:procesar-plantilla");
