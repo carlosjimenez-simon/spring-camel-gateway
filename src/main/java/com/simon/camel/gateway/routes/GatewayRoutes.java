@@ -10,9 +10,12 @@ public class GatewayRoutes extends RouteBuilder {
 	@Override
     public void configure() throws Exception {
         
-        // Configuración global del REST DSL
+        // Configuración REST DSL
         restConfiguration()
-            .component("servlet")
+            .component("netty-http")  //defecto: servlet
+            .host("0.0.0.0") // Permite conexiones desde cualquier IP
+            .port(9000)      // Puerto dedicado para el tráfico de alta velocidad
+            .contextPath("/simon-sprint-camel")
             .bindingMode(RestBindingMode.auto);
 
         // Tus rutas del Gateway
