@@ -28,6 +28,7 @@ simon:
   endpoint:
     fineract:
       search-clients: https://demo.mifos.io/fineract-provider/api/v2/clients/search
+      groups: https://demo.mifos.io/fineract-provider/api/v1/groups
     refactor-dev:
       devices: https://api.refactor.dev.internal:9090/api-refactor/devices
     datos-colombia:

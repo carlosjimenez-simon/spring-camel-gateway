@@ -21,6 +21,7 @@ public class RestHeaderProcessor implements Processor {
     public RestHeaderProcessor(List<IRestSecurityStrategy> strategyList) {
         // Mapeamos cada estrategia por su nombre de función
         for (IRestSecurityStrategy strategy : strategyList) {
+        	System.out.println(strategy.getFunctionName());
             strategies.put(strategy.getFunctionName(), strategy);
         }
     }

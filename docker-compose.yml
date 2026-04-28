@@ -1,0 +1,17 @@
+services:
+  camel-gateway:
+    build: .
+    container_name: spring-camel-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      # Puedes sobrescribir la URL de Consul si es necesario en Docker
+      - SPRING_CLOUD_CONSUL_HOST=sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
+    networks:
+      - simon-network
+    restart: unless-stopped
+
+networks:
+  simon-network:
+    driver: bridge

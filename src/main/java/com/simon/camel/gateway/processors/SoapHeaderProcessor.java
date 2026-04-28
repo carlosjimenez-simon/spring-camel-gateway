@@ -21,6 +21,7 @@ public class SoapHeaderProcessor implements Processor {
     @Autowired
     public SoapHeaderProcessor(List<ISoapSecurityStrategy> strategyList) {
         for (ISoapSecurityStrategy strategy : strategyList) {
+        	System.out.println(strategy.getFunctionName());
             strategies.put(strategy.getFunctionName(), strategy);
         }
     }
