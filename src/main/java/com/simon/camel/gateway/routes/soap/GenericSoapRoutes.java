@@ -1,8 +1,10 @@
 package com.simon.camel.gateway.routes.soap;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
+
+import com.simon.camel.gateway.constant.Constants;
+
 import java.util.Map;
 
 @Component
@@ -11,15 +13,15 @@ public class GenericSoapRoutes extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-    	// 1. La URL
-        rest("/api/v1/soap")
+    	// 1. Definición del Punto de Entrada REST
+        rest(Constants.SIMON_SPRING_CAMEL_ROUTE_BASE_GENERIC_SOAP)
         	.post("/gateway-to/{organizacion}/{operacion}")
                 .routeId("generic-soap-gateway")
                 .to("direct:procesar-plantilla");
 
         // 2. Lógica Maestra
         from("direct:procesar-plantilla")
-            .routeId("logic-velocity")
+            .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_SOAP)
             
             // A. CAPTURA INICIAL: El JSON que llega de Postman
             .setProperty("rawRequest", body())
@@ -40,6 +42,8 @@ public class GenericSoapRoutes extends RouteBuilder {
             // 4. Llamamos al procesador de headers
             .process("soapHeaderProcessor") 
             
+            .log("ID Transacción: ${header.breadcrumbId}")
+            
             .log("Headers procesados: ${headers}")
             .log("Datos para plantilla: ${body}")
             
@@ -52,11 +56,9 @@ public class GenericSoapRoutes extends RouteBuilder {
             // 6. Limpieza estándar de Camel
             .removeHeaders("CamelHttp*")
             
-            
-            
             // CONFIGURACIÓN PARA SOAP 1.2
-            .setHeader("Content-Type", simple("application/soap+xml; charset=utf-8; action=\"http://www.mundialseguros.com.co/${header.TechnicalAction}\""))
-            .setHeader("SOAPAction", simple("http://www.mundialseguros.com.co/${header.TechnicalAction}"))
+            .setHeader("Content-Type", simple("application/soap+xml; charset=utf-8; action=\"${exchangeProperty.soapNamespace}${header.TechnicalAction}\""))
+            .setHeader("SOAPAction", simple("${exchangeProperty.soapNamespace}${header.TechnicalAction}"))
 	        
             .log("XML generado para ${header.organizacion}: ${body}")
             

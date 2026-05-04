@@ -25,6 +25,11 @@ management:
         include: health, info, camelroutes
 
 simon:
+  soap-configs:
+    seguros-mundial:
+      namespace: "http://www.mundialseguros.com.co/"
+    banco-test:
+      namespace: "https://api.bancotest.com.co/services/"
   endpoint:
     fineract:
       search-clients: https://demo.mifos.io/fineract-provider/api/v2/clients/search

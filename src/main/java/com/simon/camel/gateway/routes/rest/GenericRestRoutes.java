@@ -5,6 +5,9 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.stereotype.Component;
+
+import com.simon.camel.gateway.constant.Constants;
+
 import java.util.Map;
 
 @Component
@@ -14,7 +17,7 @@ public class GenericRestRoutes extends RouteBuilder {
     public void configure() throws Exception {
         
         // Configuración del consumidor REST
-        rest("/api/v1/rest")
+        rest(Constants.SIMON_SPRING_CAMEL_ROUTE_BASE_GENERIC_REST)
             .post("/gateway-to/{organizacion}/{operacion}")
                 .consumes("application/json")
                 .produces("application/json")
@@ -22,7 +25,7 @@ public class GenericRestRoutes extends RouteBuilder {
                 .to("direct:procesar-rest");
 
         from("direct:procesar-rest")
-	        .routeId("logic-rest-core")
+	        .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_REST)
 	        
 	        // A. CAPTURA INICIAL: Guardamos el Request original antes de cualquier cambio
             .setProperty("rawRequest", body())
@@ -43,7 +46,8 @@ public class GenericRestRoutes extends RouteBuilder {
 	        // 2. Procesador de seguridad (AWS Secrets, Auth, etc.)
 	        .process("restHeaderProcessor") 
 	        
-	        .log("ID Transacción: ${header.breadcrumbId} | Headers: Auth=${headers[Authorization]} - Tenant=${headers[Fineract-Platform-TenantId]}")
+	        .log("ID Transacción: ${header.breadcrumbId}")
+	        .log("Headers: Auth=${headers[Authorization]} - Tenant=${headers[Fineract-Platform-TenantId]}")
 	        
 	        .marshal().json(JsonLibrary.Jackson)
 	        
