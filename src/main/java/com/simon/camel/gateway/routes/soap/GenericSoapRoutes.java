@@ -38,7 +38,7 @@ public class GenericSoapRoutes extends RouteBuilder {
             .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion} - TechAction: ${header.TechnicalAction}")
             
             // 4. Llamamos al procesador de headers
-            .process("headerProcessor") 
+            .process("soapHeaderProcessor") 
             
             .log("Headers procesados: ${headers}")
             .log("Datos para plantilla: ${body}")

@@ -18,7 +18,7 @@ public class GatewayRoutes extends RouteBuilder {
             .contextPath("/simon-sprint-camel")
             .bindingMode(RestBindingMode.auto);
 
-        // Tus rutas del Gateway
+        // Rutas de Test
         rest("/api")
             .get("/test")
                 .routeId("test-rest")
@@ -27,7 +27,6 @@ public class GatewayRoutes extends RouteBuilder {
         from("direct:saludo-final")
             .setBody(constant("¡Gateway configurado correctamente en /gateway/api/test!"));
             
-        // PREPARADO PARA SALIDA:
-        // Aquí es donde luego pondremos los .to("http://...") hacia afuera
+
     }
 }

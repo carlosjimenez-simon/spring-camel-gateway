@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.simon.camel.gateway.services.AmazonSecretsService;
 import com.simon.camel.gateway.strategy.soap.ISoapSecurityStrategy;
 
-@Component("headerProcessor")
+@Component("soapHeaderProcessor")
 public class SoapHeaderProcessor implements Processor {
 	
 	private final Map<String, ISoapSecurityStrategy> strategies = new HashMap<>();
