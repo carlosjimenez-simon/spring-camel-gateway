@@ -7,27 +7,17 @@ import java.util.Map;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
+import com.simon.camel.gateway.constant.Constants;
+
 @Component
 public class AuditRoutes extends RouteBuilder {
 
 	@Override
     public void configure() throws Exception {
 		
-		// 1. EL RESOLVER (Lo que antes estaba en los Routes)
-        from("direct:audit-logic")
-            .routeId("audit-router-resolver")
-            .choice()
-                .when(header("audit-implementation").isNotNull())
-                    .log("Ejecutando estrategia de auditoría: ${header.audit-implementation}")
-                    .routingSlip(header("audit-implementation"))
-                    .endChoice()
-                .otherwise()
-                    .log("WARN: No se especificó 'audit-implementation' en el JSON.")
-            .end();
-
         // --- IMPLEMENTACIÓN SOAP ---
-        from("direct:audit-soap-s3")
-            .routeId("audit-soap-strategy")
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_SOAP)
+            .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_AUDIT_SOAP)
             .process(exchange -> {
                 Map<String, Object> log = new LinkedHashMap<>();
                 log.put("type", "SOAP_TRANSACTION");
@@ -38,11 +28,11 @@ public class AuditRoutes extends RouteBuilder {
                 log.put("response_final", exchange.getIn().getBody());
                 exchange.getIn().setBody(log);
             })
-            .to("direct:common-s3-upload");
+            .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
 
         // --- IMPLEMENTACIÓN REST ---
-        from("direct:audit-rest-s3")
-            .routeId("audit-rest-strategy")
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_REST)
+            .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_AUDIT_REST)
             .process(exchange -> {
                 Map<String, Object> log = new LinkedHashMap<>();
                 log.put("type", "REST_TRANSACTION");
@@ -51,10 +41,10 @@ public class AuditRoutes extends RouteBuilder {
                 log.put("response_final", exchange.getIn().getBody());
                 exchange.getIn().setBody(log);
             })
-            .to("direct:common-s3-upload");
+            .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
 
         // --- MOTOR DE CARGA COMÚN ---
-        from("direct:common-s3-upload")
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3)
             .routeId("s3-upload-engine")
             .marshal().json()
             .setHeader("year", simple("${date:now:yyyy}"))

@@ -16,11 +16,13 @@ public class GenericSoapRoutes extends RouteBuilder {
     	// 1. Definición del Punto de Entrada REST
         rest(Constants.SIMON_SPRING_CAMEL_ROUTE_BASE_GENERIC_SOAP)
         	.post("/gateway-to/{organizacion}/{operacion}")
-                .routeId("generic-soap-gateway")
-                .to("direct:procesar-plantilla");
+	        	.consumes("application/json")
+	            .produces("application/json")
+                .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_GATEWAY_GENERIC_SOAP)
+                .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_GENERIC_SOAP_WITH_TEMPLATE);
 
         // 2. Lógica Maestra
-        from("direct:procesar-plantilla")
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_GENERIC_SOAP_WITH_TEMPLATE)
             .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_SOAP)
             
             // A. CAPTURA INICIAL: El JSON que llega de Postman
@@ -86,7 +88,7 @@ public class GenericSoapRoutes extends RouteBuilder {
             .setHeader("Content-Type", constant("application/json"))
             
             .log("Respuesta REST recibida: ${body}")
-            .wireTap("direct:audit-logic")
+            .wireTap(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_SOAP)
             
             .log("Enviando a Postman: ${body}");
     }

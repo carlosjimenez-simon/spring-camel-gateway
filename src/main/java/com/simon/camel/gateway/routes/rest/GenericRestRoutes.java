@@ -21,10 +21,10 @@ public class GenericRestRoutes extends RouteBuilder {
             .post("/gateway-to/{organizacion}/{operacion}")
                 .consumes("application/json")
                 .produces("application/json")
-                .routeId("generic-rest-gateway")
-                .to("direct:procesar-rest");
+                .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_GATEWAY_GENERIC_REST)
+                .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_GENERIC_REST);
 
-        from("direct:procesar-rest")
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_GENERIC_REST)
 	        .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_REST)
 	        
 	        // A. CAPTURA INICIAL: Guardamos el Request original antes de cualquier cambio
@@ -83,8 +83,7 @@ public class GenericRestRoutes extends RouteBuilder {
 	        .log("Respuesta REST recibida: ${body}")
 	        
 	        // C. AUDITORÍA DINÁMICA: Enviamos a la ruta puente
-            .wireTap("direct:audit-logic")
-	        
+            .wireTap(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_REST)
 	        .log("Enviando a Postman: ${body}");
 
     }
