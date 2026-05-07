@@ -3,10 +3,14 @@ package com.simon.camel.gateway.routes.soap;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
+import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.constant.Constants;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class GenericSoapRoutes extends RouteBuilder {
 
@@ -67,7 +71,7 @@ public class GenericSoapRoutes extends RouteBuilder {
             .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true")
             
              // D. CAPTURA XML RECIBIDO: Respuesta cruda del proveedor
-            .setProperty("xmlReceived", body())
+            .setProperty("xmlReceived", body().convertToString())
             
             .log("Respuesta recibida: ${body}")
             

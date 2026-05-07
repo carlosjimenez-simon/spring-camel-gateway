@@ -17,16 +17,5 @@ public class GatewayRoutes extends RouteBuilder {
             .port(9000)      // Puerto dedicado para el tráfico de alta velocidad
             .contextPath("/simon-sprint-camel")
             .bindingMode(RestBindingMode.auto);
-
-        // Rutas de Test
-        rest("/api")
-            .get("/test")
-                .routeId("test-rest")
-                .to("direct:saludo-final");
-
-        from("direct:saludo-final")
-            .setBody(constant("¡Gateway configurado correctamente en /gateway/api/test!"));
-            
-
     }
 }

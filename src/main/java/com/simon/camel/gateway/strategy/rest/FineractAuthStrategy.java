@@ -5,7 +5,12 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.springframework.stereotype.Component;
 
+import com.simon.camel.gateway.SpringCamelGatewayApplication;
 
+import lombok.extern.slf4j.Slf4j;
+
+
+@Slf4j
 @Component
 public class FineractAuthStrategy implements IRestSecurityStrategy {
 	

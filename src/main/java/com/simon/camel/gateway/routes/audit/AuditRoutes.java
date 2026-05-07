@@ -7,8 +7,12 @@ import java.util.Map;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
+import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.constant.Constants;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class AuditRoutes extends RouteBuilder {
 

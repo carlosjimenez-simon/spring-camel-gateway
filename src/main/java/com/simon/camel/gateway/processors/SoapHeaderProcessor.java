@@ -10,9 +10,13 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.services.AmazonSecretsService;
 import com.simon.camel.gateway.strategy.soap.ISoapSecurityStrategy;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component("soapHeaderProcessor")
 public class SoapHeaderProcessor implements Processor {
 	
@@ -21,7 +25,7 @@ public class SoapHeaderProcessor implements Processor {
     @Autowired
     public SoapHeaderProcessor(List<ISoapSecurityStrategy> strategyList) {
         for (ISoapSecurityStrategy strategy : strategyList) {
-        	System.out.println(strategy.getFunctionName());
+        	log.info(strategy.getFunctionName());
             strategies.put(strategy.getFunctionName(), strategy);
         }
     }

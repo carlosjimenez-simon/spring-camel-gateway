@@ -3,6 +3,8 @@ package com.simon.camel.gateway.processors;
 import com.simon.camel.gateway.services.AmazonSecretsService;
 import com.simon.camel.gateway.strategy.rest.IRestSecurityStrategy;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component("restHeaderProcessor")
 public class RestHeaderProcessor implements Processor {
 
@@ -21,7 +24,7 @@ public class RestHeaderProcessor implements Processor {
     public RestHeaderProcessor(List<IRestSecurityStrategy> strategyList) {
         // Mapeamos cada estrategia por su nombre de función
         for (IRestSecurityStrategy strategy : strategyList) {
-        	System.out.println(strategy.getFunctionName());
+        	log.info(strategy.getFunctionName());
             strategies.put(strategy.getFunctionName(), strategy);
         }
     }
