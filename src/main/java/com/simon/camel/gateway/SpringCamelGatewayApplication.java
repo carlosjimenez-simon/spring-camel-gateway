@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SpringCamelGatewayApplication {
 
 	public static void main(String[] args) {
-		log.info("Version 28 Abr 2026 15:41");
+		log.info("Version 19 May 2026 09:57");
 		SpringApplication.run(SpringCamelGatewayApplication.class, args);
 	}
 

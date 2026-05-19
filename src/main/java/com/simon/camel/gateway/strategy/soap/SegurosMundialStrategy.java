@@ -12,8 +12,12 @@ import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.services.AmazonSecretsService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class SegurosMundialStrategy implements ISoapSecurityStrategy {
     
@@ -39,7 +43,9 @@ public class SegurosMundialStrategy implements ISoapSecurityStrategy {
         // Lógica de firma HMAC (la misma que tenías antes)
         String timeStamp = String.valueOf(System.currentTimeMillis() / 1000L);
         String clientId = secrets.get("clientId");
+        log.info("clientId: {}", clientId);
         String secretKey = secrets.get("clientSecret");
+        log.info("secretKey: {}", secretKey);
         
         String message = timeStamp + "." + clientId + "." + datos.get("placa");
         String firma = calcularHMACSHA256(message, secretKey);
@@ -48,6 +54,8 @@ public class SegurosMundialStrategy implements ISoapSecurityStrategy {
         exchange.getIn().setHeader("X-MUN-CLIENT", clientId);
         exchange.getIn().setHeader("X-MUN-SIGN", firma);
         exchange.getIn().setHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((secrets.get("username") + ":" + secrets.get("password")).getBytes()));
+        log.info("username: {}", secrets.get("username"));
+        log.info("password: {}", secrets.get("password"));
     }
     
     private String calcularHMACSHA256(String data, String key) throws Exception {
