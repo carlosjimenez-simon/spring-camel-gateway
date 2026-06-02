@@ -17,7 +17,7 @@ public class TraccarAuthStrategy implements IRestSecurityStrategy {
     public String getFunctionName() { return "traccar-auth"; }
 
     @Override
-    public void apply(Exchange exchange, Map<String, Object> headerConfig) {
+    public void apply(Exchange exchange, Map<String, Object> headerConfig, Map<String, Object> datos) {
 
         String authHeader = "Basic bWlmb3M6cGFzc3"; 
         

@@ -6,6 +6,6 @@ import org.apache.camel.Exchange;
 
 public interface IRestSecurityStrategy {
 
-	void apply(Exchange exchange, Map<String, Object> headerConfig);
+	void apply(Exchange exchange, Map<String, Object> headerConfig, Map<String, Object> datos) throws Exception;
     String getFunctionName();
 }

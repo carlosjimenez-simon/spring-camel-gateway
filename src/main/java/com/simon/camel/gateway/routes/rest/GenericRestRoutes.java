@@ -1,26 +1,17 @@
 package com.simon.camel.gateway.routes.rest;
 
-
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
-import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.stereotype.Component;
-
-import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.constant.Constants;
-
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Map;
 
-@Slf4j
 @Component
 public class GenericRestRoutes extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
         
-        // Configuración del consumidor REST
         rest(Constants.SIMON_SPRING_CAMEL_ROUTE_BASE_GENERIC_REST)
             .post("/gateway-to/{organizacion}/{operacion}")
                 .consumes("application/json")
@@ -31,64 +22,95 @@ public class GenericRestRoutes extends RouteBuilder {
         from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_GENERIC_REST)
 	        .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_REST)
 	        
-	        // A. CAPTURA INICIAL: Guardamos el Request original antes de cualquier cambio
             .setProperty("rawRequest", body())
 	        .convertBodyTo(Map.class)
 	        
-	        // B. DINAMISMO: Extraemos qué auditoría usar desde el JSON de entrada
             .setHeader("audit-implementation", simple("${body[audit-implementation]}"))
 	        
-	        // 1. Extraemos el método dinámico del JSON (Header interno de nuestra App)
 	        .setHeader("MetodoDestino", simple("${body[header][method]}", String.class))
 	        .choice()
 	            .when(header("MetodoDestino").isNull())
-	                .setHeader("MetodoDestino", constant("GET")) // Por defecto GET si no envían nada
+	                .setHeader("MetodoDestino", constant("GET"))
 	        .end()
 	        
 	        .log("Procesando REST [${header.MetodoDestino}] - Org: ${header.organizacion} - Op: ${header.operacion}")
 	        
-	        // 2. Procesador de seguridad (AWS Secrets, Auth, etc.)
+	        // Ejecuta tu estrategia: mapea datos y setea Authorization / X-API-Version
 	        .process("restHeaderProcessor") 
 	        
 	        .log("ID Transacción: ${header.breadcrumbId}")
-	        .log("Headers: Auth=${headers[Authorization]} - Tenant=${headers[Fineract-Platform-TenantId]}")
 	        
+	        // Transformamos el sub-nodo "datos" a JSON String
 	        .marshal().json(JsonLibrary.Jackson)
 	        
-	        // 3. LIMPIEZA TOTAL: Eliminamos headers de Camel y quemados como el Origin
-	        .removeHeaders("CamelHttp*")
-	        .removeHeaders("Host")
+	        // =================================================================
+	        // VIOLENCIA DE LIMPIEZA: Borramos TODO excepto lo estrictamente vital
+	        // =================================================================
+	        // Borra absolutamente todos los headers entrantes de Postman y residuos de Camel,
+	        // manteniendo ÚNICAMENTE los que le pasamos como excepción en los siguientes parámetros:
+	        .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId")
 	        
-	        // Headers estándar de un API JSON
+	        // Headers requeridos por el API de Finanzauto
 	        .setHeader("Content-Type", constant("application/json"))
 	        .setHeader("Accept", constant("application/json"))
-	        
-	        // 4. Aplicamos el verbo dinámico que extrajimos al inicio
 	        .setHeader("CamelHttpMethod", header("MetodoDestino"))
 	        
-	        // 5. Invocación dinámica con el bypass de SSL para entornos internos/inseguros
-	        .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false")
+	        // =================================================================
+	        // ESPÍA DE TELEMETRÍA (PROCESADOR PARA IMPRIMIR EN LOGS)
+	        // =================================================================
+	        .process(exchange -> {
+	            log.info("=========================================================");
+	            log.info(" INSPECCIÓN DE PETICIÓN SALIENTE HACIA EL BACKEND");
+	            log.info("=========================================================");
+	            log.info("URL Destino teórica: " + exchange.getContext().resolvePropertyPlaceholders("{{simon.endpoint." + exchange.getIn().getHeader("organizacion") + "." + exchange.getIn().getHeader("operacion") + "}}"));
+	            log.info("Verbo HTTP (CamelHttpMethod): " + exchange.getIn().getHeader("CamelHttpMethod"));
+	            log.info("Body saliente (JSON): " + exchange.getIn().getBody(String.class));
+	            log.info("--- Headers presentes en el envío ---");
+	            exchange.getIn().getHeaders().forEach((k, v) -> {
+	                // Ocultamos parte del token en el log para que no sea gigante, pero confirmamos si va bien
+	                if ("Authorization".equals(k) && v != null) {
+	                    log.info("  " + k + " => " + v.toString().substring(0, Math.min(v.toString().length(), 25)) + "...");
+	                } else {
+	                    log.info("  " + k + " => " + v);
+	                }
+	            });
+	            log.info("=========================================================");
+	        })
+	        
+	        .circuitBreaker()
+	            .id("cb-${header.organizacion}-${header.operacion}") // ID Único por operación
+	            .resilience4jConfiguration()
+	                .failureRateThreshold(50.0f) // 50% de umbral quemado
+	                .waitDurationInOpenState(5)  // 5 segundos de espera quemados
+	            .end() //
+	            
+	            .log("🚀 [CIRCUITO CERRADO] Intentando pegar a la red para: ${header.operacion}...")
+	            
+	            // La misma llamada exacta que ya le funciona
+	            .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false") //
+	            //.toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.connectTimeout=15000&httpClient.socketTimeout=15000") //
+	            //.toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=true&httpClient.connectTimeout=15000&httpClient.socketTimeout=15000") //
+	        
+	        .onFallback()
+	            // Si algo falla, solo metemos un log y devolvemos un string vacío controlado
+	            .log("⚠️ Alerta: Circuit Breaker activado para la operación: ${header.operacion}")
+	            .setBody(constant(""))
+	        .end() // Cierra el bloque completo del circuit breaker
 	        
 	        // 6. Manejo de respuesta
 	        .convertBodyTo(String.class) 
 	        .log("Respuesta REST recibida: ${body}")
 	
-	        // Validamos que el body no esté vacío antes de intentar el JSON (Pasa mucho en OPTIONS o DELETE)
 	        .choice()
 	            .when(simple("${body} != null && ${body} != ''"))
 	                .unmarshal().json(JsonLibrary.Jackson)
 	        .end()
 	
-	        // 7. Limpieza para el cliente final (Postman/App)
 	        .removeHeaders("*", "breadcrumbId", "organizacion", "operacion", "audit-implementation")
 	        .setHeader("Content-Type", constant("application/json"))
 	        .setHeader("HttpCharacterEncoding", constant("UTF-8"))
 	        
-	        .log("Respuesta REST recibida: ${body}")
-	        
-	        // C. AUDITORÍA DINÁMICA: Enviamos a la ruta puente
-            .wireTap(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_REST)
+	        .wireTap(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_REST)
 	        .log("Enviando a Postman: ${body}");
-
     }
 }

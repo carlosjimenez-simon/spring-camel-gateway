@@ -32,6 +32,7 @@ public class RestHeaderProcessor implements Processor {
 	@Override
     public void process(Exchange exchange) throws Exception {
         Map<String, Object> body = exchange.getIn().getBody(Map.class);
+        Map<String, Object> datos = (Map<String, Object>) body.get("datos");
         
         if (body == null || !body.containsKey("header")) return;
 
@@ -41,7 +42,7 @@ public class RestHeaderProcessor implements Processor {
         // Buscamos la estrategia y la aplicamos sin un solo IF
         IRestSecurityStrategy strategy = strategies.get(function);
         if (strategy != null) {
-            strategy.apply(exchange, headerConfig);
+            strategy.apply(exchange, headerConfig, datos);
         }
 
         // Mantenemos la lógica de pasar los datos al body
