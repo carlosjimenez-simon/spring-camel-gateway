@@ -32,7 +32,7 @@ simon:
     datos-colombia:
       lista-paquetes: https://datosabiertos.bogota.gov.co:8089/api/3/action/package_list
     finanzauto:
-      get-vehicles: https://www.finanzauto.com.co/Finanzauto.Runt.Api/api/vehicles
+      get-vehicles: https://www.finanzauto.com.co:9999/Finanzauto.Runt.Api/api/vehicles
     fineract:
       search-clients: https://demo.mifos.io/fineract-provider/api/v2/clients/search
       groups: https://demo.mifos.io/fineract-provider/api/v1/groups

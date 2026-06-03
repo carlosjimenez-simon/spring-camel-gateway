@@ -77,7 +77,9 @@ public class GenericSoapRoutes extends RouteBuilder {
                 .id("cb-soap-${header.organizacion}-${header.operacion}")
                 .resilience4jConfiguration()
                     .failureRateThreshold(50.0f) // Mismo umbral del 50%
-                    .waitDurationInOpenState(15) // Espera de 15 segundos en Open State
+                    .waitDurationInOpenState(30) // Espera de 15 segundos en Open State
+                    .timeoutEnabled(true)        
+                    .timeoutDuration(5000)
                 .end() // Cierra resiliencia4j
                 
                 // Agregamos throwExceptionOnFailure=false para que las respuestas HTTP de error pasen al fallback de Camel
@@ -110,8 +112,6 @@ public class GenericSoapRoutes extends RouteBuilder {
 	                })
 	                .marshal().json(JsonLibrary.Jackson)
 	                
-	                // === MODIFICADO: Cambiamos el convertBodyTo por un Unmarshal JSON ===
-	                // Esto transforma el String JSON de bytes a un objeto Map vivo que el componente rest entiende nativo
 	                .unmarshal().json(JsonLibrary.Jackson)
 	                
 	                .stop()

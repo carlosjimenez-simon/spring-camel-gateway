@@ -103,7 +103,9 @@ public class GenericRestRoutes extends RouteBuilder {
 	            .id("cb-${header.organizacion}-${header.operacion}") 
 	            .resilience4jConfiguration()
 	                .failureRateThreshold(50.0f) 
-	                .waitDurationInOpenState(15) 
+	                .waitDurationInOpenState(30) 
+	                .timeoutEnabled(true)        
+                    .timeoutDuration(5000)
 	            .end()
 	            
 	            .log("🚀 [CIRCUITO CERRADO] Pegando al backend para la operación: ${header.operacion}...")
