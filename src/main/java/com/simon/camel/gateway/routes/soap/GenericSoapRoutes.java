@@ -1,13 +1,15 @@
 package com.simon.camel.gateway.routes.soap;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
 
-import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.constant.Constants;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
@@ -46,7 +48,7 @@ public class GenericSoapRoutes extends RouteBuilder {
             .log("Procesando Org: ${header.organizacion} - Op: ${header.operacion} - TechAction: ${header.TechnicalAction}")
             
             // 4. Llamamos al procesador de headers
-            .process("soapHeaderProcessor") 
+            .process("soapHeaderProcessor")
             
             .log("ID Transacción: ${header.breadcrumbId}")
             
@@ -68,15 +70,63 @@ public class GenericSoapRoutes extends RouteBuilder {
 	        
             .log("XML generado para ${header.organizacion}: ${body}")
             
-            .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true")
+            // =================================================================
+            // NUEVO: INTEGRACIÓN DEL CIRCUIT BREAKER PARA SOAP
+            // =================================================================
+            .circuitBreaker()
+                .id("cb-soap-${header.organizacion}-${header.operacion}")
+                .resilience4jConfiguration()
+                    .failureRateThreshold(50.0f) // Mismo umbral del 50%
+                    .waitDurationInOpenState(15) // Espera de 15 segundos en Open State
+                .end() // Cierra resiliencia4j
+                
+                // Agregamos throwExceptionOnFailure=false para que las respuestas HTTP de error pasen al fallback de Camel
+                .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false")
             
+                .onFallback()
+	                .log("⚠️ Alerta: Circuit Breaker activado en proceso SOAP para la operación: ${header.operacion}")
+	                
+	                .process(exchange -> {
+	                    Throwable exception = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
+	                    String org = exchange.getIn().getHeader("organizacion", String.class);
+	                    String op = exchange.getIn().getHeader("operacion", String.class);
+	                    
+	                    Map<String, Object> errorResponse = new LinkedHashMap<>();
+	                    errorResponse.put("status", "FAIL");
+	                    errorResponse.put("code", "GW-503-SOAP-CB");
+	                    errorResponse.put("message", "El servicio SOAP externo no se encuentra disponible temporalmente por protección del Gateway.");
+	                    errorResponse.put("organization", org);
+	                    errorResponse.put("operation", op);
+	                    
+	                    if (exception != null) {
+	                        errorResponse.put("technical_reason", exception.getMessage());
+	                        errorResponse.put("exception_type", exception.getClass().getSimpleName());
+	                    } else {
+	                        errorResponse.put("technical_reason", "CallNotPermittedException (Circuito abierto rebotando peticiones)");
+	                    }
+	                    
+	                    exchange.getIn().setBody(errorResponse);
+	                    exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 503);
+	                })
+	                .marshal().json(JsonLibrary.Jackson)
+	                
+	                // === MODIFICADO: Cambiamos el convertBodyTo por un Unmarshal JSON ===
+	                // Esto transforma el String JSON de bytes a un objeto Map vivo que el componente rest entiende nativo
+	                .unmarshal().json(JsonLibrary.Jackson)
+	                
+	                .stop()
+	            .end() // Cierra el bloque onFallback
+            
+            // =================================================================
+            // CONTINUACIÓN DEL FLUJO FELIZ (Solo corre si el .toD andó melo)
+            // =================================================================
              // D. CAPTURA XML RECIBIDO: Respuesta cruda del proveedor
             .setProperty("xmlReceived", body().convertToString())
             
             .log("Respuesta recibida: ${body}")
             
             // 7. Convertimos el XML String a un Map de Java para que el process pueda leerlo
-            .unmarshal().jacksonXml(Map.class) 
+            .unmarshal().jacksonXml(Map.class)
             
             .process(exchange -> {
                 Map<String, Object> map = exchange.getIn().getBody(Map.class);
@@ -88,7 +138,7 @@ public class GenericSoapRoutes extends RouteBuilder {
             })
 
             // 8. LIMPIEZA TOTAL DE HEADERS
-            .removeHeaders("*", "breadcrumbId", "organizacion", "operacion") 
+            .removeHeaders("*", "breadcrumbId", "organizacion", "operacion")
             .setHeader("Content-Type", constant("application/json"))
             
             .log("Respuesta REST recibida: ${body}")
