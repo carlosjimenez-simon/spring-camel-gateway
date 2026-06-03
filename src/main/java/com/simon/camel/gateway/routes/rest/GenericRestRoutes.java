@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import com.simon.camel.gateway.constant.Constants;
 import com.simon.camel.gateway.strategy.aggregation.MulticallAggregationStrategy;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -102,7 +103,7 @@ public class GenericRestRoutes extends RouteBuilder {
 	            .id("cb-${header.organizacion}-${header.operacion}") 
 	            .resilience4jConfiguration()
 	                .failureRateThreshold(50.0f) 
-	                .waitDurationInOpenState(5) 
+	                .waitDurationInOpenState(15) 
 	            .end()
 	            
 	            .log("🚀 [CIRCUITO CERRADO] Pegando al backend para la operación: ${header.operacion}...")
@@ -110,8 +111,37 @@ public class GenericRestRoutes extends RouteBuilder {
 	        
 	        .onFallback()
 	            .log("⚠️ Alerta: Circuit Breaker activado en sub-proceso para la operación: ${header.operacion}") 
-	            .setBody(constant("{\"error\": \"Backend no disponible (Circuit Breaker Abierto)\"}"))
-	        .end()
+	        
+		        .process(exchange -> {
+		                // Extraemos la excepción técnica que disparó el fallback (si existe)
+		                Throwable exception = exchange.getProperty(exchange.EXCEPTION_CAUGHT, Throwable.class);
+		                String org = exchange.getIn().getHeader("organizacion", String.class);
+		                String op = exchange.getIn().getHeader("operacion", String.class);
+		                
+		                // Inicializamos un mapa ordenado para la respuesta JSON
+		                Map<String, Object> errorResponse = new LinkedHashMap<>();
+		                errorResponse.put("status", "FAIL");
+		                errorResponse.put("code", "GW-503-CB");
+		                errorResponse.put("message", "El servicio no se encuentra disponible temporalmente por protección del Gateway.");
+		                errorResponse.put("organization", org);
+		                errorResponse.put("operation", op);
+		                
+		                // Si el cortocircuito se abrió por una excepción de Resilience4j o Timeout, te lo detalla aquí
+		                if (exception != null) {
+		                    errorResponse.put("technical_reason", exception.getMessage());
+		                    errorResponse.put("exception_type", exception.getClass().getSimpleName());
+		                } else {
+		                    errorResponse.put("technical_reason", "CallNotPermittedException (Circuito abierto rechazando peticiones)");
+		                    errorResponse.put("exception_type", "CircuitBreakerOpenException");
+		                }
+		                
+		                // Seteamos el mapa en el cuerpo del mensaje y forzamos código HTTP 503
+		                exchange.getIn().setBody(errorResponse);
+		                exchange.getIn().setHeader(exchange.HTTP_RESPONSE_CODE, 503);
+		            })
+		            // Convertimos el mapa creado arriba a un JSON estructurado real
+		            .marshal().json(JsonLibrary.Jackson)
+	        .end() // Cierra el bloque onFallback
 	        
 	        .convertBodyTo(String.class) 
             

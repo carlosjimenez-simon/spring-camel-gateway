@@ -3,6 +3,11 @@ package com.simon.camel.gateway.strategy.rest;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+
 import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -26,6 +31,8 @@ public class FinanzautoRuntAuthStrategy implements IRestSecurityStrategy{
 
     // Usamos un único RestTemplate para las peticiones HTTP
     private final RestTemplate restTemplate = new RestTemplate();
+	// Modificado: Inicializamos el RestTemplate con una configuración que ignora SSL
+    //private final RestTemplate restTemplate = crearRestTemplateInseguro();
 
     @Override
     public String getFunctionName() { 
@@ -96,6 +103,39 @@ public class FinanzautoRuntAuthStrategy implements IRestSecurityStrategy{
         } catch (Exception e) {
             log.error("Error al intentar autenticarse con Finanzauto en el endpoint: {}", endpoint, e);
             return null;
+        }
+    }
+    
+    /**
+     * Método auxiliar que configura un RestTemplate usando HttpURLConnection puro de Java
+     * pero inhabilitando la verificación de cadenas de certificados (PKIX).
+     */
+    private RestTemplate crearRestTemplateInseguro() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            
+            // Usamos la factoría nativa de Spring configurada con nuestro SSLContext permisivo
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            
+            // Forzamos al HttpsURLConnection a usar el SSLContext que confía en todo
+            javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            
+            // Opcional: Ignorar también la validación del Hostname si el subdominio no cuadra
+            javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+
+            return new RestTemplate(requestFactory);
+        } catch (Exception e) {
+            log.error("No se pudo crear el RestTemplate inseguro, usando el por defecto.", e);
+            return new RestTemplate();
         }
     }
 

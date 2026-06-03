@@ -28,22 +28,14 @@ simon:
   soap-configs:
     seguros-mundial:
       namespace: "http://www.mundialseguros.com.co/"
-    banco-test:
-      namespace: "https://api.bancotest.com.co/services/"
   endpoint:
+    datos-colombia:
+      lista-paquetes: https://datosabiertos.bogota.gov.co:8089/api/3/action/package_list
     finanzauto:
       get-vehicles: https://www.finanzauto.com.co/Finanzauto.Runt.Api/api/vehicles
     fineract:
       search-clients: https://demo.mifos.io/fineract-provider/api/v2/clients/search
       groups: https://demo.mifos.io/fineract-provider/api/v1/groups
-    refactor-dev:
-      devices: https://api.refactor.dev.internal:9090/api-refactor/devices
-    datos-colombia:
-      lista-paquetes: https://datosabiertos.bogota.gov.co:8089/api/3/action/package_list_DANAO
-    test-lab:
-      operacion-ok: http://localhost:9080/ws/laboratorio/ok
-      operacion-caida: http://localhost:9080/ws/laboratorio/error-503
-      operacion-lenta: http://localhost:9080/ws/laboratorio/timeout
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
@@ -107,3 +99,7 @@ simon:
       expedir-poliza-xml: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       generar-tasa-runt: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       validar-placa-tarifa-pais: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
+    test-lab:
+      operacion-ok: http://localhost:9080/ws/laboratorio/ok
+      operacion-caida: http://localhost:9080/ws/laboratorio/error-503
+      operacion-lenta: http://localhost:9080/ws/laboratorio/timeout
