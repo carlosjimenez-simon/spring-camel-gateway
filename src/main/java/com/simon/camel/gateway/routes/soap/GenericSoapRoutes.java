@@ -80,6 +80,8 @@ public class GenericSoapRoutes extends RouteBuilder {
                     .waitDurationInOpenState(30) // Espera de 15 segundos en Open State
                     .timeoutEnabled(true)        
                     .timeoutDuration(5000)
+                    .bulkheadEnabled(true)
+                    .bulkheadMaxConcurrentCalls(30)
                 .end() // Cierra resiliencia4j
                 
                 // Agregamos throwExceptionOnFailure=false para que las respuestas HTTP de error pasen al fallback de Camel
