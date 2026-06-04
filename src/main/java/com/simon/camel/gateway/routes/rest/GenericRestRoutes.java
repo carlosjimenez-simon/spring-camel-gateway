@@ -87,19 +87,43 @@ public class GenericRestRoutes extends RouteBuilder {
                     com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
                     String cleanJsonString = null;
                     
-                    if (currentBody instanceof org.apache.camel.converter.stream.InputStreamCache || currentBody instanceof java.io.InputStream) {
-                        // === CASO ONLINE: Si es un stream binario de red, lo forzamos a convertirse a String JSON real usando Camel ===
+                    // === CASO ESPECIAL MULTICALL: Si es una lista o arreglo de datos de Java ===
+                    if (currentBody instanceof java.util.List) {
+                        java.util.List<?> bodyList = (java.util.List<?>) currentBody;
+                        java.util.List<Object> processedList = new java.util.ArrayList<>();
+                        
+                        // Iteramos de forma segura cada elemento del arreglo consolidado por el Aggregator
+                        for (Object item : bodyList) {
+                            if (item instanceof org.apache.camel.converter.stream.InputStreamCache || item instanceof java.io.InputStream) {
+                                // Convertimos el stream binario individual a String JSON válido usando Camel
+                                String resolvedStr = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, item);
+                                // Lo parseamos a mapa de Java para que no conserve comillas escapadas internas
+                                processedList.add(mapper.readValue(resolvedStr, Object.class));
+                            } else if (item instanceof String) {
+                                processedList.add(mapper.readValue((String) item, Object.class));
+                            } else {
+                                // Si ya es un mapa nativo (Caso Offline de S3) lo añadimos directo
+                                processedList.add(item);
+                            }
+                        }
+                        // Serializamos la lista limpia de flujos binarios a String JSON real
+                        cleanJsonString = mapper.writeValueAsString(processedList);
+                        
+                    } else if (currentBody instanceof org.apache.camel.converter.stream.InputStreamCache || currentBody instanceof java.io.InputStream) {
+                        // === CASO UNITARIO ONLINE: Si es un stream binario de red único ===
                         cleanJsonString = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, currentBody);
+                        
                     } else if (currentBody instanceof String) {
-                        // Si ya es un String plano
+                        // Si ya es una cadena JSON directa
                         cleanJsonString = (String) currentBody;
+                        
                     } else if (currentBody != null) {
-                        // === CASO OFFLINE: Si es un Mapa vivo de Java (LinkedHashMap de S3), Jackson lo serializa a JSON real ===
+                        // === CASO UNITARIO OFFLINE: Si es un mapa único de Java recuperado de S3 ===
                         cleanJsonString = mapper.writeValueAsString(currentBody);
                     }
                     
-                    // Re-mapeamos el string JSON limpio a un Objeto POJO indexable de Java (Map/List)
-                    // Con esto, Spring Boot se encarga de pintarlo hermoso, estructurado y con ':' en Postman
+                    // Re-mapeamos la estructura limpia de texto JSON a objetos POJO indexables (Map/List)
+                    // Con esto, Spring Boot se encarga de pintarlo impecable con ':' y formateado en Postman
                     if (cleanJsonString != null) {
                         Object parsedObject = mapper.readValue(cleanJsonString, Object.class);
                         exchange.getIn().setBody(parsedObject);
