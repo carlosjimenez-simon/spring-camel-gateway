@@ -81,11 +81,35 @@ public class GenericRestRoutes extends RouteBuilder {
 	        .setHeader("Content-Type", constant("application/json"))
 	        .setHeader("HttpCharacterEncoding", constant("UTF-8"))
 	        
-	        .convertBodyTo(String.class)
+	        .process(exchange -> {
+                Object currentBody = exchange.getIn().getBody();
+                try {
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    String cleanJsonString = null;
+                    
+                    if (currentBody instanceof org.apache.camel.converter.stream.InputStreamCache || currentBody instanceof java.io.InputStream) {
+                        // === CASO ONLINE: Si es un stream binario de red, lo forzamos a convertirse a String JSON real usando Camel ===
+                        cleanJsonString = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, currentBody);
+                    } else if (currentBody instanceof String) {
+                        // Si ya es un String plano
+                        cleanJsonString = (String) currentBody;
+                    } else if (currentBody != null) {
+                        // === CASO OFFLINE: Si es un Mapa vivo de Java (LinkedHashMap de S3), Jackson lo serializa a JSON real ===
+                        cleanJsonString = mapper.writeValueAsString(currentBody);
+                    }
+                    
+                    // Re-mapeamos el string JSON limpio a un Objeto POJO indexable de Java (Map/List)
+                    // Con esto, Spring Boot se encarga de pintarlo hermoso, estructurado y con ':' en Postman
+                    if (cleanJsonString != null) {
+                        Object parsedObject = mapper.readValue(cleanJsonString, Object.class);
+                        exchange.getIn().setBody(parsedObject);
+                    }
+                } catch (Exception e) {
+                    log.error("Error en formateo estético de salida troncal: " + e.getMessage());
+                }
+            })
             // Una vez convertido a String, volvemos a parsearlo a Objeto de Java interno (Map/List) 
             // para que Postman lo renderice hermoso y AuditRoutes lo pueda procesar sin romper Jackson
-            .unmarshal().json(org.apache.camel.model.dataformat.JsonLibrary.Jackson)
-
 	        .wireTap(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_REST)
 	        .log("Enviando respuesta final a Postman: ${body}");
 
