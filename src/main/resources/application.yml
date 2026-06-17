@@ -36,9 +36,10 @@ simon:
       lista-paquetes: https://datosabiertos.bogota.gov.co:8089/api/3/action/package_list
     finanzauto:
       get-vehicles: https://www.finanzauto.com.co/Finanzauto.Runt.Api/api/vehicles
-    fineract:
-      search-clients: https://demo.mifos.io/fineract-provider/api/v2/clients/search
-      groups: https://demo.mifos.io/fineract-provider/api/v1/groups
+    simon-fineract:
+      clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients
+      savingsproducts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
+      savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx

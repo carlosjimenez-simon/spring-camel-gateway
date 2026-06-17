@@ -36,6 +36,8 @@ public class GenericRestRoutes extends RouteBuilder {
             .setHeader("Multicall", simple("${body[header][multicall]}"))
             .setHeader("CacheOnline", simple("${body[header][online]}", Boolean.class))
             .setHeader("CacheKeyField", simple("${body[header][key]}", String.class))
+            .setHeader("DynamicPath", simple("${body[header][dynamic-path]}"))
+            .setHeader("DynamicQueryParams", simple("${body[header][query-params]}"))
 	        
             .choice()
 	            .when(header("MetodoDestino").isNull())
@@ -247,14 +249,77 @@ public class GenericRestRoutes extends RouteBuilder {
 	            .end(); // Cierra CHOICE Online/Caché
 
         
-        // =================================================================
+     // =================================================================
         // SUB-RUTA: INVOCACIÓN REAL AL PROVEEDOR BLINDADA POR CB + TIMEOUT
         // =================================================================
         from("direct:invocar-backend-real")
             .routeId("simon-sub-route-invocar-backend-real")
+            
+            // === 1. MAPEO DINÁMICO DE QUERY PARAMS (Soporta GET y POST) ===
+            .process(exchange -> {
+                String metodo = exchange.getIn().getHeader("MetodoDestino", String.class);
+                String explicitQueryParams = exchange.getIn().getHeader("DynamicQueryParams", String.class);
+                Object currentBody = exchange.getIn().getBody();
+                
+                // Opción 1: Si el usuario mandó query-params explícitos en el header JSON
+                if (explicitQueryParams != null && !explicitQueryParams.trim().isEmpty() && !"null".equalsIgnoreCase(explicitQueryParams)) {
+                    exchange.getIn().setHeader(Exchange.HTTP_QUERY, explicitQueryParams.trim());
+                } 
+                // Opción 2: Mapeo automático de datos en métodos GET
+                else if ("GET".equalsIgnoreCase(metodo) && currentBody instanceof Map) {
+                    Map<?, ?> bodyMap = (Map<?, ?>) currentBody;
+                    Object datosObj = bodyMap.get("datos");
+                    
+                    if (datosObj instanceof Map) {
+                        Map<?, ?> datosMap = (Map<?, ?>) datosObj;
+                        StringBuilder queryString = new StringBuilder();
+                        
+                        datosMap.forEach((k, v) -> {
+                            if (queryString.length() > 0) queryString.append("&");
+                            queryString.append(k).append("=").append(v);
+                        });
+                        
+                        if (queryString.length() > 0) {
+                            exchange.getIn().setHeader(Exchange.HTTP_QUERY, queryString.toString());
+                        }
+                    }
+                }
+            })
+            
+            // === 2. FILTRO CRÍTICO: EXTRACCIÓN DE PAYLOAD LIMPIO (MAPA NATIVO) ===
+            .process(exchange -> {
+                Object currentBody = exchange.getIn().getBody();
+                
+                // Caso 1: Viene del flujo tradicional (Map completo con 'header' y 'datos')
+                if (currentBody instanceof Map && ((Map<?, ?>) currentBody).containsKey("datos")) {
+                    Map<?, ?> bodyMap = (Map<?, ?>) currentBody;
+                    exchange.getIn().setBody(bodyMap.get("datos"));
+                } 
+                // Caso 2: Viene del Splitter de Multicall
+                else if (currentBody instanceof Map && ((Map<?, ?>) currentBody).get("datos") instanceof Map) {
+                    Map<?, ?> bodyMap = (Map<?, ?>) currentBody;
+                    exchange.getIn().setBody(bodyMap.get("datos"));
+                }
+            })
+            
+            // === 3. CONSTRUCCIÓN DE LA URL DESTINO (Path Variables Dinámicos) ===
+            .process(exchange -> {
+                String dynamicPath = exchange.getIn().getHeader("DynamicPath", String.class);
+                
+                // Si el usuario envió un path variable (ej: 000000001/transactions), le ponemos el slash inicial
+                if (dynamicPath != null && !dynamicPath.trim().isEmpty() && !"null".equalsIgnoreCase(dynamicPath)) {
+                    exchange.setProperty("CalculatedDynamicPath", "/" + dynamicPath.trim());
+                } else {
+                    exchange.setProperty("CalculatedDynamicPath", "");
+                }
+            })
+            
+            // === 4. SERIALIZACIÓN NATIVA A BYTE STREAM ===
+            // Convierte el mapa extraído en un JSON binario real que el componente HTTP de Camel necesita.
             .marshal().json(JsonLibrary.Jackson)
             
-            .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField")
+            // === 5. LIMPIEZA DE HEADERS PRESERVANDO EL CAMELHTTPQUERY ===
+            .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField", "Fineract-Platform-TenantId", "CamelHttpQuery")
             
             .setHeader("Content-Type", constant("application/json"))
             .setHeader("Accept", constant("application/json"))
@@ -266,16 +331,20 @@ public class GenericRestRoutes extends RouteBuilder {
                     .failureRateThreshold(50.0f)
                     .waitDurationInOpenState(30)
                     .timeoutEnabled(true)       
-                    .timeoutDuration(15000) // Cambiado a tus 15 segundos prudenciales
+                    .timeoutDuration(15000) 
                     .bulkheadEnabled(true)
                     .bulkheadMaxConcurrentCalls(30)
                 .end()
                 
                 .log("🚀 [CIRCUITO CERRADO] Pegando al backend para la operación: ${header.operacion}...")
-                .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}?bridgeEndpoint=true&throwExceptionOnFailure=false")
-            
+                // === 6. INVOCACIÓN USANDO LA PROPIEDAD MUTADA DINÁMICAMENTE ===
+                //.toD("${exchangeProperty.CalculatedTargetEndpoint}?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier")
+                .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}${exchangeProperty.CalculatedDynamicPath}?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier")
+                
+                .convertBodyTo(String.class)
             .onFallback()
                 .log("⚠️ Alerta: Circuit Breaker activado en sub-proceso para la operación: ${header.operacion}")
+                .log(org.apache.camel.LoggingLevel.WARN, "⚠️ Alerta: Circuit Breaker ejecutando Fallback para: ${header.operacion}. Causa en Exchange: ${exception.message}")
                 
                 .process(exchange -> {
                         Throwable exception = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
