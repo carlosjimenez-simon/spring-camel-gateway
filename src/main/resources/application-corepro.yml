@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: iam-spring-camel-gateway
+  cloud:
+    consul:
+      enabled: false
+      #host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
+      #port: 8500
+      discovery:
+        enabled: false
+        #health-check-path: /actuator/health
+        #instance-id: ${spring.application.name}:${random.value}
+        #port: ${PORT_HOST:8080}
+camel:
+  main:
+    use-breadcrumb: true
+  servlet:
+    mapping:
+      context-path: /simon-sprint-camel/*
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, camelroutes
+
+simon:
+  soap-configs:
+    seguros-mundial:
+      namespace: "http://www.mundialseguros.com.co/"
+  endpoint:
+    simon-fineract:
+      clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients
+      savingsproducts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
+      savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
