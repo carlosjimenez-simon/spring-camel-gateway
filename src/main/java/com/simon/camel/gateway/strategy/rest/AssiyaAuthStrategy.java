@@ -36,55 +36,60 @@ public class AssiyaAuthStrategy implements IRestSecurityStrategy {
                 .orElse("default/assiya-secret");
         }
 
-        log.info("Buscando secreto en AWS Secrets Manager para enriquecer Assiya: {}", secretName);
+        log.info("Buscando secreto en AWS Secrets Manager para Assiya: {}", secretName);
 
-        // 2. Extraer datos de AWS
+        // 2. Extraer credenciales y metadatos de AWS
         Map<String, String> secrets = secretsService.getAwsSecret(secretName);
         String apiKey = secrets.get("apiKey");
-        String companyId = secrets.get("companyId");
         String userId = secrets.get("userId");
         String ownerId = secrets.get("ownerId");
         String ownerName = secrets.get("ownerName");
         String buOwnerId = secrets.get("buOwnerId");
         String buOwnerName = secrets.get("buOwnerName");
+        String companyId = secrets.get("companyId");
+        
 
         if (apiKey == null) {
             throw new IllegalStateException("El secreto de AWS no contiene la llave 'apiKey' para Assiya");
         }
 
-        // 3. Inyectar Headers de seguridad y guardar propiedades de URL
+        // 3. Configurar Headers de la petición HTTP externa
         exchange.getIn().setHeader("Authorization", apiKey);
         exchange.getIn().setHeader("Content-Type", "application/json");
-        exchange.setProperty("assiyaCompanyId", companyId);
-        exchange.setProperty("assiyaUserId", userId);
 
-        // =================================================================
-        // LA MAGIA: ENRIQUECER EL BODY CON LOS DATOS OCULTOS DEL SECRET
-        // =================================================================
+        // 4. Enriquecer el body (Mantenemos oculta la estructura institucional)
         if (datos != null) {
-            log.info("Enriqueciendo el body de la petición con datos del AWS Secret...");
-
-            // Armar objeto "owner"
-            Map<String, Object> owner = new HashMap<>();
-            owner.put("id", ownerId);
-            owner.put("name", ownerName);
-            owner.put("type", "Owner");
-            datos.put("owner", owner);
-
-            // Armar objeto "buOwner"
-            Map<String, Object> buOwner = new HashMap<>();
-            buOwner.put("id", buOwnerId);
-            buOwner.put("name", buOwnerName);
-            buOwner.put("type", "BuOwner");
-            datos.put("buOwner", buOwner);
-
-            // Armar objeto "creatorUser"
-            Map<String, Object> creatorUser = new HashMap<>();
-            creatorUser.put("id", userId);
-            creatorUser.put("name", "Gateway Automático " + ownerName); // O el nombre que prefieras
-            datos.put("creatorUser", creatorUser);
+            log.info("Enriqueciendo el body de negocio con metadata de AWS...");
             
-            log.info("Body enriquecido exitosamente.");
+            String operacionActual = exchange.getIn().getHeader("operacion", String.class);
+            
+            if ("crear-servicio".equalsIgnoreCase(operacionActual)) {
+            
+	            Map<String, Object> owner = new HashMap<>();
+	            owner.put("id", ownerId);
+	            owner.put("name", ownerName);
+	            owner.put("type", "Owner");
+	            datos.put("owner", owner);
+	
+	            Map<String, Object> buOwner = new HashMap<>();
+	            buOwner.put("id", buOwnerId);
+	            buOwner.put("name", buOwnerName);
+	            buOwner.put("type", "BuOwner");
+	            datos.put("buOwner", buOwner);
+	
+	            Map<String, Object> creatorUser = new HashMap<>();
+	            creatorUser.put("id", userId);
+	            creatorUser.put("name", "Gateway Automático " + ownerName);
+	            datos.put("creatorUser", creatorUser);
+	            
+            }if ("buscar-servicio".equalsIgnoreCase(operacionActual)) {
+            	datos.put("companyId", companyId);
+            	datos.put("userId", userId);
+            }if ("detalle-suscripcion".equalsIgnoreCase(operacionActual)) {
+            	datos.put("companyId", companyId);
+            } else {
+                log.info("Operación '{}' no requiere enriquecimiento de metadata en el body.", operacionActual);
+            }
         }
     }
 }

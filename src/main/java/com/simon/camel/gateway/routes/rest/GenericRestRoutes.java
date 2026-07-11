@@ -257,32 +257,46 @@ public class GenericRestRoutes extends RouteBuilder {
             
             // === 1. MAPEO DINÁMICO DE QUERY PARAMS (Soporta GET y POST) ===
             .process(exchange -> {
-                String metodo = exchange.getIn().getHeader("MetodoDestino", String.class);
-                String explicitQueryParams = exchange.getIn().getHeader("DynamicQueryParams", String.class);
-                Object currentBody = exchange.getIn().getBody();
+                String metodo = exchange.getIn().getHeader("MetodoDestino", String.class); //
+                String explicitQueryParams = exchange.getIn().getHeader("DynamicQueryParams", String.class); //
+                Object currentBody = exchange.getIn().getBody(); //
                 
-                // Opción 1: Si el usuario mandó query-params explícitos en el header JSON
+                // 🛠️ JUGA MAESTRA: Leer la URL del yml para ver si trae parámetros base (ej: ?companyId=...)
+                String org = exchange.getIn().getHeader("organizacion", String.class);
+                String op = exchange.getIn().getHeader("operacion", String.class);
+                String rawBaseEndpoint = exchange.getContext().resolvePropertyPlaceholders("{{simon.endpoint." + org + "." + op + "}}");
+                
+                StringBuilder queryFinal = new StringBuilder();
+                
+                // Si el yml ya tiene parámetros, los guardamos como base de la query
+                if (rawBaseEndpoint != null && rawBaseEndpoint.contains("?")) {
+                    String[] parts = rawBaseEndpoint.split("\\?", 2);
+                    queryFinal.append(parts[1]); // Guarda el "companyId=693042b8c120e2c6e2d928d5"
+                }
+                
+                // Opción A: Si el usuario mandó query-params explícitos en el JSON de entrada
                 if (explicitQueryParams != null && !explicitQueryParams.trim().isEmpty() && !"null".equalsIgnoreCase(explicitQueryParams)) {
-                    exchange.getIn().setHeader(Exchange.HTTP_QUERY, explicitQueryParams.trim());
+                    if (queryFinal.length() > 0) queryFinal.append("&");
+                    queryFinal.append(explicitQueryParams.trim());
                 } 
-                // Opción 2: Mapeo automático de datos en métodos GET
-                else if ("GET".equalsIgnoreCase(metodo) && currentBody instanceof Map) {
-                    Map<?, ?> bodyMap = (Map<?, ?>) currentBody;
-                    Object datosObj = bodyMap.get("datos");
+                // Opción B: Mapeo automático de datos en métodos GET (si vienen dentro del objeto datos)
+                else if ("GET".equalsIgnoreCase(metodo) && currentBody instanceof Map) { //
+                    Map<?, ?> bodyMap = (Map<?, ?>) currentBody; //
+                    Object datosObj = bodyMap.get("datos"); //
                     
-                    if (datosObj instanceof Map) {
-                        Map<?, ?> datosMap = (Map<?, ?>) datosObj;
-                        StringBuilder queryString = new StringBuilder();
+                    if (datosObj instanceof Map) { //
+                        Map<?, ?> datosMap = (Map<?, ?>) datosObj; //
                         
-                        datosMap.forEach((k, v) -> {
-                            if (queryString.length() > 0) queryString.append("&");
-                            queryString.append(k).append("=").append(v);
-                        });
-                        
-                        if (queryString.length() > 0) {
-                            exchange.getIn().setHeader(Exchange.HTTP_QUERY, queryString.toString());
+                        for (Map.Entry<?, ?> entry : datosMap.entrySet()) {
+                            if (queryFinal.length() > 0) queryFinal.append("&");
+                            queryFinal.append(entry.getKey()).append("=").append(entry.getValue());
                         }
                     }
+                }
+                
+                // Guardamos el resultado definitivo en el header oficial de Camel
+                if (queryFinal.length() > 0) {
+                    exchange.getIn().setHeader(Exchange.HTTP_QUERY, queryFinal.toString());
                 }
             })
             
@@ -318,6 +332,8 @@ public class GenericRestRoutes extends RouteBuilder {
             // Convierte el mapa extraído en un JSON binario real que el componente HTTP de Camel necesita.
             .marshal().json(JsonLibrary.Jackson)
             
+            .log("📤 JSON enviado al Backend para [${header.organizacion}/${header.operacion}]: ${body}")
+            
             // === 5. LIMPIEZA DE HEADERS PRESERVANDO EL CAMELHTTPQUERY ===
             .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField", "Fineract-Platform-TenantId", "CamelHttpQuery")
             
@@ -337,9 +353,31 @@ public class GenericRestRoutes extends RouteBuilder {
                 .end()
                 
                 .log("🚀 [CIRCUITO CERRADO] Pegando al backend para la operación: ${header.operacion}...")
+                
+                //imprimimos la url calculada
+                .process(exchange -> {
+                    String baseEndpoint = exchange.getContext().resolvePropertyPlaceholders("{{simon.endpoint." + exchange.getIn().getHeader("organizacion") + "." + exchange.getIn().getHeader("operacion") + "}}");
+                    String dynamicPath = exchange.getProperty("CalculatedDynamicPath", String.class);
+                    String queryParams = exchange.getIn().getHeader(org.apache.camel.Exchange.HTTP_QUERY, String.class);
+                    
+                    // 🛠️ Si la URL base ya trae un '?', lo podamos para que el log quede perfecto
+                    if (baseEndpoint != null && baseEndpoint.contains("?")) {
+                        baseEndpoint = baseEndpoint.split("\\?")[0];
+                    }
+                    
+                    String urlCompleta = baseEndpoint + (dynamicPath != null ? dynamicPath : "");
+                    if (queryParams != null && !queryParams.isEmpty()) {
+                        urlCompleta += "?" + queryParams;
+                    }
+                    
+                    exchange.setProperty("SimonUrlLog", urlCompleta);
+                })
+                
+                .log("🔗 URL Destino calculada: [${header.MetodoDestino}] -> ${exchangeProperty.SimonUrlLog}")
+                
                 // === 6. INVOCACIÓN USANDO LA PROPIEDAD MUTADA DINÁMICAMENTE ===
-                //.toD("${exchangeProperty.CalculatedTargetEndpoint}?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier")
                 .toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}}${exchangeProperty.CalculatedDynamicPath}?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier")
+                //.toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}.split('\\\\?')[0]}${exchangeProperty.CalculatedDynamicPath}?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier")
                 
                 .convertBodyTo(String.class)
             .onFallback()
