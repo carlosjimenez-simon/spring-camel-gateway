@@ -40,6 +40,21 @@ simon:
       clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients
       savingsproducts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
       savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
+      simon-assiya:
+      # Endpoint 4: Búsqueda de Unidades de negocio y tipos de servicios
+      unidades-negocio: https://qa.wiptool.com/business/api/v1/BusinessUnit/company/${exchangeProperty.assiyaCompanyId}/business-units/services
+      # Endpoint 5: Creación de servicios
+      crear-servicio: https://qa.wiptool.com/service/api/v2/Service/${exchangeProperty.assiyaCompanyId}/service/${exchangeProperty.assiyaUserId}
+      # Endpoint 6: Búsqueda de servicio por ID (Recibe el ID mediante la propiedad dynamic-path del JSON)
+      buscar-servicio-id: https://qa.wiptool.com/service/api/v1/Service
+      # Endpoint 7: Búsqueda de servicios por criterios (Placa/documento/nombre/teléfono)
+      buscar-servicio: https://qa.wiptool.com/service/api/v1/Service/search
+      # Endpoint 8: Búsqueda de suscripciones por documento o placa (Recibe query-params dinámicos del JSON)
+      buscar-suscripciones: https://qa.wiptool.com/Customer/Subscription?companyId=${exchangeProperty.assiyaCompanyId}
+      # Endpoint 9: Detalles de la suscripción (consumo)
+      consumo-suscripcion: https://qa.wiptool.com/Customer/api/v1/Customer/Subscription/Consumption
+      # Endpoint 10: WebHook actualización de servicio
+      webhook-status: https://qa.wiptool.com/status
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
