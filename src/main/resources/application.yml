@@ -42,7 +42,7 @@ simon:
       savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
     simon-assiya:
       # Endpoint 4: Búsqueda de Unidades de negocio y tipos de servicios
-      unidades-negocio: https://qa.wiptool.com/business/api/v1/BusinessUnit/company/68701191925c3ada69bbf9af/business-units/services
+      unidades-negocio: https://qa.wiptool.com/business/api/v1/BusinessUnit/company/693042b8c120e2c6e2d928d5/business-units/services
       # Endpoint 5: Creación de servicios
       crear-servicio: https://qa.wiptool.com/service/api/v2/Service/693042b8c120e2c6e2d928d5/service/63ee339c6576af3cd2e0a8fa
       #crear-servicio: https://webhook.site/80095857-6e2b-403b-beab-488fe156006f
