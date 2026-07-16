@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 58080
 
 spring:
   application:
@@ -60,6 +60,7 @@ simon:
       # Endpoint 10: WebHook actualización de servicio
       webhook-status: https://qa.wiptool.com/status
       #webhook-status: https://webhook.site/96bc7738-3070-4b7a-b272-11d56d991539
+      precio-servicio: https://webhook.site/25d6d133-b875-4ae1-a5dc-debf98243892		
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
