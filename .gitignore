@@ -33,3 +33,7 @@ build/
 .vscode/
 
 .DS_Store
+
+graphify-out
+
+.opencode
