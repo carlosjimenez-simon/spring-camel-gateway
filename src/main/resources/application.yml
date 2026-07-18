@@ -43,10 +43,10 @@ simon:
     simon-assiya:
       # Endpoint 4: Búsqueda de Unidades de negocio y tipos de servicios
       #unidades-negocio: https://qa.wiptool.com/business/api/v1/BusinessUnit/company/693042b8c120e2c6e2d928d5/business-units/services
-      unidades-negocio: https://webhook.site/#!/view/16db106b-6941-4c04-905e-a7c739601f4f
+      unidades-negocio: https://webhook.site/16db106b-6941-4c04-905e-a7c739601f4f
       # Endpoint 5: Creación de servicios
       #crear-servicio: https://qa.wiptool.com/service/api/v2/Service/693042b8c120e2c6e2d928d5/service/63ee339c6576af3cd2e0a8fa
-      crear-servicio: https://webhook.site/#!/view/a38c4575-7b79-4933-86ee-a278a89aa507
+      crear-servicio: https://webhook.site/a38c4575-7b79-4933-86ee-a278a89aa507
       # Endpoint 6: Búsqueda de servicio por ID
       buscar-servicio-id: https://qa.wiptool.com/service/api/v1/Service
       # Endpoint 7: Búsqueda de servicios por criterios
