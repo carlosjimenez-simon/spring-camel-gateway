@@ -47,6 +47,21 @@ public class AuditRoutes extends RouteBuilder {
             })
             .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
 
+        // --- IMPLEMENTACIÓN GOOGLE SHEET ---
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_GOOGLE_SHEET)
+            .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_AUDIT_GOOGLE_SHEET)
+            .process(exchange -> {
+                Map<String, Object> log = new LinkedHashMap<>();
+                log.put("type", "GOOGLE_SHEET_TRANSACTION");
+                log.put("id", exchange.getIn().getHeader("breadcrumbId"));
+                log.put("request_data", exchange.getProperty("rawRequest"));
+                log.put("lookup_code", exchange.getProperty("gsheet.lookupCode"));
+                log.put("matched_row", exchange.getProperty("gsheet.matchedRow"));
+                log.put("response_final", exchange.getIn().getBody());
+                exchange.getIn().setBody(log);
+            })
+            .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
+
         // --- MOTOR DE CARGA COMÚN ---
         from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3)
             .routeId("s3-upload-engine")

@@ -39,11 +39,14 @@ docker buildx build ^
   -t "%IMAGE_NAME%:latest" ^
   --push .
 
-if %errorlevel% eq 0 (
+if %ERRORLEVEL% EQU 0 (
     echo ✅ ¡Éxito! La imagen ha sido publicada en: https://hub.docker.com/r/%IMAGE_NAME%
-    echo 🐳 Para probarla localmente (aunque sea amd64):
+    echo 🐳 Para probarla localmente (aunque sea amd64^):
     echo docker pull %FULL_IMAGE_PATH%
 ) else (
     echo ❌ Hubo un error en la construcción o el push.
+    pause
     exit /b 1
 )
+
+pause
