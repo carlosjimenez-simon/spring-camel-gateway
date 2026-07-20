@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: iam-spring-camel-gateway
+    name: iam-spring-camel-core-gateway
   cloud:
     consul:
       enabled: false
@@ -19,7 +19,7 @@ camel:
     use-breadcrumb: true
   servlet:
     mapping:
-      context-path: /simon-sprint-camel/*
+      context-path: /simon-sprint-camel-core/*
 
 management:
   endpoints:
@@ -29,8 +29,8 @@ management:
 
 simon:
   soap-configs:
-    seguros-mundial:
-      namespace: "http://www.mundialseguros.com.co/"
+    simon-fineract:
+      namespace: "NO-REQUERIDO"
   endpoint:
     simon-fineract:
       clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients

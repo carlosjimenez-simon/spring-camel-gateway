@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: iam-spring-camel-gateway
+    name: iam-spring-camel-external-gateway
   cloud:
     consul:
       enabled: false
@@ -19,7 +19,7 @@ camel:
     use-breadcrumb: true
   servlet:
     mapping:
-      context-path: /simon-sprint-camel/*
+      context-path: /simon-sprint-camel-external/*
 
 management:
   endpoints:
@@ -36,6 +36,29 @@ simon:
       lista-paquetes: https://datosabiertos.bogota.gov.co:8089/api/3/action/package_list
     finanzauto:
       get-vehicles: https://www.finanzauto.com.co/Finanzauto.Runt.Api/api/vehicles
+    simon-assiya:
+      # Endpoint 4: Búsqueda de Unidades de negocio y tipos de servicios
+      #unidades-negocio: https://qa.wiptool.com/business/api/v1/BusinessUnit/company/693042b8c120e2c6e2d928d5/business-units/services
+      unidades-negocio: https://webhook.site/16db106b-6941-4c04-905e-a7c739601f4f
+      # Endpoint 5: Creación de servicios
+      #crear-servicio: https://qa.wiptool.com/service/api/v2/Service/693042b8c120e2c6e2d928d5/service/63ee339c6576af3cd2e0a8fa
+      crear-servicio: https://webhook.site/a38c4575-7b79-4933-86ee-a278a89aa507
+      # Endpoint 6: Búsqueda de servicio por ID
+      buscar-servicio-id: https://qa.wiptool.com/service/api/v1/Service
+      # Endpoint 7: Búsqueda de servicios por criterios
+      #buscar-servicio: https://qa.wiptool.com/service/api/v1/Service/search
+      buscar-servicio: https://webhook.site/67e9c823-7c4d-45e4-bf9c-33fc9b225f8d
+      # Endpoint 8: Búsqueda de suscripciones
+      #buscar-suscripciones: https://qa.wiptool.com/Customer/Subscription?companyId=693042b8c120e2c6e2d928d5
+      buscar-suscripciones: https://webhook.site/4e4a7bec-eaab-4d3a-a9e2-efb4c010b9c4
+      # Endpoint 9: Detalles de la suscripción (consumo)
+      #detalle-suscripcion: https://qa.wiptool.com/Customer/api/v1/Customer/Subscription/Consumption
+      detalle-suscripcion: https://webhook.site/8dd8048a-5c95-4d68-b037-2e63655d8e82
+      # Endpoint 10: WebHook actualización de servicio
+      #webhook-status: https://qa.wiptool.com/status
+      webhook-status: https://webhook.site/59c5a1b4-cbc1-4367-b1c3-9b24a2411a21
+      #webhook-status: https://webhook.site/96bc7738-3070-4b7a-b272-11d56d991539
+      precio-servicio: https://webhook.site/25d6d133-b875-4ae1-a5dc-debf98243892		
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
@@ -99,7 +122,3 @@ simon:
       expedir-poliza-xml: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       generar-tasa-runt: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       validar-placa-tarifa-pais: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
-    test-lab:
-      operacion-ok: http://localhost:9080/ws/laboratorio/ok
-      operacion-caida: http://localhost:9080/ws/laboratorio/error-503
-      operacion-lenta: http://localhost:9080/ws/laboratorio/timeout
