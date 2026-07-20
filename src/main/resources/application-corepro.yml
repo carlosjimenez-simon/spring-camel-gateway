@@ -14,6 +14,11 @@ spring:
         #health-check-path: /actuator/health
         #instance-id: ${spring.application.name}:${random.value}
         #port: ${PORT_HOST:8080}
+
+netty:
+  port: 9001
+  context-path: /simon-sprint-camel-core
+
 camel:
   main:
     use-breadcrumb: true
