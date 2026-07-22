@@ -197,7 +197,7 @@ public class GenericRestRoutes extends RouteBuilder {
                     .doTry()
                         // Armamos las cabeceras requeridas por el componente AWS S3 de Camel para descargar
 	                    .setHeader("CamelAwsS3Key", simple("runt-cache/${header.organizacion}/${header.operacion}/${exchangeProperty.CacheFileName}"))
-	                    .to("aws2-s3://simon-camel-gateway-cache?region=us-east-1&useDefaultCredentialsProvider=true&operation=getObject") 
+	                    .to("aws2-s3://${cache.s3.bucket}?region=${cache.s3.region}&useDefaultCredentialsProvider=${cache.s3.use-default-credentials}&operation=getObject")
 	                    .convertBodyTo(String.class)
                         .unmarshal().json(JsonLibrary.Jackson)
                         .log("🎯 Registro recuperado con éxito desde S3 Cache.")
@@ -235,7 +235,7 @@ public class GenericRestRoutes extends RouteBuilder {
 	                    })
 	                    
 	                    // 3. Subimos de forma dinámica a AWS S3
-	                    .toD("aws2-s3://simon-camel-gateway-cache?region=us-east-1&useDefaultCredentialsProvider=true")
+	                    .toD("aws2-s3://${cache.s3.bucket}?region=${cache.s3.region}&useDefaultCredentialsProvider=${cache.s3.use-default-credentials}")
 	                    
 	                    // === LA JUGADA MAESTRA: Restauramos el body original para que Postman lo pinte hermoso ===
 	                    .setBody(exchangeProperty("ResponseToCache"))

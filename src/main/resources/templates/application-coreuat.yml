@@ -44,12 +44,12 @@ simon:
 
 audit:
   s3:
-    bucket: simon-pro-camel-gateway-logs
+    bucket: simon-uat-camel-gateway-logs
     region: us-east-1
     use-default-credentials: true
 
 cache:
   s3:
-    bucket: simon-pro-camel-gateway-cache
+    bucket: simon-uat-camel-gateway-cache
     region: us-east-1
     use-default-credentials: true

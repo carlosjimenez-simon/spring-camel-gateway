@@ -70,7 +70,7 @@ public class AuditRoutes extends RouteBuilder {
             .setHeader("month", simple("${date:now:MM}"))
             .setHeader("day", simple("${date:now:dd}"))
             .setHeader("CamelAwsS3Key", simple("year=${header.year}/month=${header.month}/day=${header.day}/org=${header.organizacion}/op=${header.operacion}/${header.breadcrumbId}.json"))
-            .toD("aws2-s3://simon-camel-gateway-logs?region=us-east-1&useDefaultCredentialsProvider=true")
+            .toD("aws2-s3://${audit.s3.bucket}?region=${audit.s3.region}&useDefaultCredentialsProvider=${audit.s3.use-default-credentials}")
             .log("Auditoría [${header.audit-implementation}] guardada en S3");
     }
 }

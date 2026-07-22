@@ -135,3 +135,15 @@ simon:
       operacion-ok: http://localhost:9080/ws/laboratorio/ok
       operacion-caida: http://localhost:9080/ws/laboratorio/error-503
       operacion-lenta: http://localhost:9080/ws/laboratorio/timeout
+
+audit:
+  s3:
+    bucket: simon-camel-gateway-logs
+    region: us-east-1
+    use-default-credentials: true
+
+cache:
+  s3:
+    bucket: simon-camel-gateway-cache
+    region: us-east-1
+    use-default-credentials: true
