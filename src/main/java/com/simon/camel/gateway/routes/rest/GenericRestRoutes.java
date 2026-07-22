@@ -3,6 +3,7 @@ package com.simon.camel.gateway.routes.rest;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.simon.camel.gateway.constant.Constants;
 import com.simon.camel.gateway.strategy.aggregation.MulticallAggregationStrategy;
@@ -13,8 +14,34 @@ import java.util.Map;
 @Component
 public class GenericRestRoutes extends RouteBuilder {
 
+	// Inyección de propiedades de Caché S3 desde application.yml
+    @Value("${cache.s3.bucket}")
+    private String cacheS3Bucket;
+
+    @Value("${cache.s3.region}")
+    private String cacheS3Region;
+
+    @Value("${cache.s3.use-default-credentials}")
+    private String cacheS3UseDefaultCredentials;
+    
+    
     @Override
     public void configure() throws Exception {
+        
+    	// Construcción de los endpoints estáticos para S3 con las propiedades inyectadas
+    	String cacheS3GetObjectEndpoint = String.format(
+		    "aws2-s3://%s?region=%s&useDefaultCredentialsProvider=%s&operation=getObject&autoCreateBucket=false",
+		    cacheS3Bucket, cacheS3Region, cacheS3UseDefaultCredentials
+		);
+        
+        log.info(cacheS3GetObjectEndpoint);
+
+        String cacheS3PutObjectEndpoint = String.format(
+    	    "aws2-s3://%s?region=%s&useDefaultCredentialsProvider=%s&autoCreateBucket=false",
+    	    cacheS3Bucket, cacheS3Region, cacheS3UseDefaultCredentials
+    	);
+        
+        log.info(cacheS3PutObjectEndpoint);
         
         rest(Constants.SIMON_SPRING_CAMEL_ROUTE_BASE_GENERIC_REST)
             .post("/gateway-to/{organizacion}/{operacion}")
@@ -197,7 +224,8 @@ public class GenericRestRoutes extends RouteBuilder {
                     .doTry()
                         // Armamos las cabeceras requeridas por el componente AWS S3 de Camel para descargar
 	                    .setHeader("CamelAwsS3Key", simple("runt-cache/${header.organizacion}/${header.operacion}/${exchangeProperty.CacheFileName}"))
-	                    .to("aws2-s3://${cache.s3.bucket}?region=${cache.s3.region}&useDefaultCredentialsProvider=${cache.s3.use-default-credentials}&operation=getObject")
+	                    //.to("aws2-s3://{{cache.s3.bucket}}?region={{cache.s3.region}}&useDefaultCredentialsProvider={{cache.s3.use-default-credentials}}&operation=getObject")
+	                    .to(cacheS3GetObjectEndpoint)
 	                    .convertBodyTo(String.class)
                         .unmarshal().json(JsonLibrary.Jackson)
                         .log("🎯 Registro recuperado con éxito desde S3 Cache.")
@@ -235,8 +263,8 @@ public class GenericRestRoutes extends RouteBuilder {
 	                    })
 	                    
 	                    // 3. Subimos de forma dinámica a AWS S3
-	                    .toD("aws2-s3://${cache.s3.bucket}?region=${cache.s3.region}&useDefaultCredentialsProvider=${cache.s3.use-default-credentials}")
-	                    
+	                    //.toD("aws2-s3://{{cache.s3.bucket}}?region={{cache.s3.region}&useDefaultCredentialsProvider={{cache.s3.use-default-credentials}}")
+	                    .to(cacheS3PutObjectEndpoint)
 	                    // === LA JUGADA MAESTRA: Restauramos el body original para que Postman lo pinte hermoso ===
 	                    .setBody(exchangeProperty("ResponseToCache"))
 	                    

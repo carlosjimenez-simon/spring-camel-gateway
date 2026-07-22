@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.simon.camel.gateway.SpringCamelGatewayApplication;
@@ -15,7 +16,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class AuditRoutes extends RouteBuilder {
+	
+	// Inyección de propiedades de auditoría desde application.yml
+    @Value("${audit.s3.bucket}")
+    private String auditS3Bucket;
 
+    @Value("${audit.s3.region}")
+    private String auditS3Region;
+
+    @Value("${audit.s3.use-default-credentials}")
+    private String auditS3UseDefaultCredentials;
+	
 	@Override
     public void configure() throws Exception {
 		
@@ -61,6 +72,14 @@ public class AuditRoutes extends RouteBuilder {
                 exchange.getIn().setBody(log);
             })
             .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
+        
+        // Concatenación de la URI estática de S3 usando variables Java
+        String auditS3Endpoint = String.format(
+    	    "aws2-s3://%s?region=%s&useDefaultCredentialsProvider=%s&autoCreateBucket=false",
+    	    auditS3Bucket, auditS3Region, auditS3UseDefaultCredentials
+    	);
+        
+        log.info(auditS3Endpoint);
 
         // --- MOTOR DE CARGA COMÚN ---
         from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3)
@@ -70,7 +89,8 @@ public class AuditRoutes extends RouteBuilder {
             .setHeader("month", simple("${date:now:MM}"))
             .setHeader("day", simple("${date:now:dd}"))
             .setHeader("CamelAwsS3Key", simple("year=${header.year}/month=${header.month}/day=${header.day}/org=${header.organizacion}/op=${header.operacion}/${header.breadcrumbId}.json"))
-            .toD("aws2-s3://${audit.s3.bucket}?region=${audit.s3.region}&useDefaultCredentialsProvider=${audit.s3.use-default-credentials}")
+            //.to("aws2-s3://{{audit.s3.bucket}}?region={{audit.s3.region}}&useDefaultCredentialsProvider={{audit.s3.use-default-credentials}}")
+            .to(auditS3Endpoint)
             .log("Auditoría [${header.audit-implementation}] guardada en S3");
     }
 }
