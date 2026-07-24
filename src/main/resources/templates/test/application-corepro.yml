@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: iam-spring-camel-core-gateway
+  cloud:
+    consul:
+      enabled: false
+      #host: sm-dev-refactor-discovery-lb-4476a00ba6412662.elb.us-east-1.amazonaws.com
+      #port: 8500
+      discovery:
+        enabled: false
+        #health-check-path: /actuator/health
+        #instance-id: ${spring.application.name}:${random.value}
+        #port: ${PORT_HOST:8080}
+
+netty:
+  port: 9001
+  context-path: /simon-sprint-camel-core
+
+camel:
+  main:
+    use-breadcrumb: true
+  servlet:
+    mapping:
+      context-path: /simon-sprint-camel-core/*
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, camelroutes
+
+simon:
+  soap-configs:
+    simon-fineract:
+      namespace: "NO-REQUERIDO"
+  endpoint:
+    simon-fineract:
+      clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients
+      savingsproducts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
+      savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
+
+audit:
+  s3:
+    bucket: simon-pro-camel-gateway-logs
+    region: us-east-1
+    use-default-credentials: true
+
+cache:
+  s3:
+    bucket: simon-pro-camel-gateway-cache
+    region: us-east-1
+    use-default-credentials: true
