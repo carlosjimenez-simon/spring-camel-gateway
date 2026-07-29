@@ -1,0 +1,102 @@
+Parcerito date cuenta que mi proyecto de spring camel es completamente dinamico. Funciona para end-point de tipo SOAP y Rest.
+La manera en la que resuelvo cada end-point es dinamica. El objeto que recibo es por ejemplo asi:
+
+url: http://localhost:9000/simon-sprint-camel/api/v1/rest/gateway-to/simon-assiya/obtener-campos-formulario
+body:
+{
+  "header": {
+    "method": "GET",
+    "function": "assiya-auth",
+    "function-parameters": [
+      {
+        "name": "secret-name",
+        "value": "dev/simon-assists/assistya"
+      }
+    ],
+    "multicall": false,
+    "online": true,
+    "dynamic-path": "",
+    "query-params": "clientFormId=8c747de5-f9d6-4f7d-b292-6bf810d80cef&userType=Final"
+  },
+  "datos": {},
+  "audit-implementation": "direct:audit-rest-s3"
+}
+
+
+otro ejemplo es: http://localhost:9000/simon-sprint-camel/api/v1/rest/gateway-to/simon-assiya/obtener-campos-formulario-detalle
+
+body:
+
+{
+  "header": {
+    "method": "GET",
+    "function": "assiya-auth",
+    "function-parameters": [
+      {
+        "name": "secret-name",
+        "value": "dev/simon-assists/assistya"
+      }
+    ],
+    "multicall": false,
+    "online": true,
+    "dynamic-path": "63bf0d090f28b5138f14006a",
+    "query-params": ""
+  },
+  "datos": {},
+  "audit-implementation": "direct:audit-rest-s3"
+}
+
+Lo que necesitamos hacer es lo siguiente:
+
+Punto 1:
+
+Necesitamos implementar la composicion, sea dinamica. Lo que quisiera hacer es lo siguiente. En el application-dev tenemos la siguiente parametrizacion:
+
+simon:
+  soap-configs:
+    seguros-mundial:
+      namespace: "http://www.mundialseguros.com.co/"
+  composicion:
+    simon-assiya:
+      composicion-obtener-campos:
+        operaciones: obtener-campos-formulario, obtener-campos-formulario-detalle
+        
+ 
+ Fijate la ruta: simon -> composicion -> simon-assiya -> composicion-obtener-campos
+
+esta ruta suguiere la composicion de los servicios existentes: obtener-campos-formulario, obtener-campos-formulario-detalle
+
+
+Punto 2:
+Necesitamos definir como vamos a arreglar el body que recibimos para saber que es una composicion. Recuerda que todo debe quedar dinamico
+
+
+Punto 3:
+Necesitamos tener una plantilla para la respuesta. Mira que tengo un archivo que esta en blanco que se llama: /src/main/resources/templates/assistya/obtener-campos.vm. 
+La idea de esta plantilla es colocar la respuesta, la cual en un ejemplo, necesito que me responda esto:
+
+{
+  "formId": "63bf0d090f28b5138f14006a",
+  "companyFormId": "8c747de5-f9d6-4f7d-b292-6bf810d80cef",
+  "formName": "Grua",
+  "fields": [
+    {
+      "fieldId": "636d440e077e7d87bd841b8c",
+      "fieldName": "Nombre del usuario",
+      "source": "CustomFields",
+      "isRequired": false,
+      "type": "Fixed",
+      "description": null,
+      "options": [
+                "Grúa Moto",
+                "Planchon Liviano",
+                "Grua tipo 300",
+                "Grua pesada tipo 400",
+                "Grua pesada tipo 600",
+                "Grua pesada tipo 900",
+                "Grua sobredimensionado"
+            ],
+      "features": []
+    }
+  ]
+}

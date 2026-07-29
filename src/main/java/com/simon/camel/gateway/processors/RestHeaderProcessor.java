@@ -30,24 +30,28 @@ public class RestHeaderProcessor implements Processor {
     }
 
 	@Override
-    public void process(Exchange exchange) throws Exception {
-        Map<String, Object> body = exchange.getIn().getBody(Map.class);
-        Map<String, Object> datos = (Map<String, Object>) body.get("datos");
-        
-        if (body == null || !body.containsKey("header")) return;
+	@SuppressWarnings("unchecked")
+	public void process(Exchange exchange) throws Exception {
+	    Map<String, Object> body = exchange.getIn().getBody(Map.class);
 
-        Map<String, Object> headerConfig = (Map<String, Object>) body.get("header");
-        String function = (String) headerConfig.get("function");
+	    // 1. Validar que body no sea nulo y contenga la clave "header" ANTES de hacer .get()
+	    if (body == null || !body.containsKey("header")) {
+	        return;
+	    }
 
-        // Buscamos la estrategia y la aplicamos sin un solo IF
-        IRestSecurityStrategy strategy = strategies.get(function);
-        if (strategy != null) {
-            strategy.apply(exchange, headerConfig, datos);
-        }
+	    Map<String, Object> datos = (Map<String, Object>) body.get("datos");
+	    Map<String, Object> headerConfig = (Map<String, Object>) body.get("header");
+	    String function = (String) headerConfig.get("function");
 
-        // Mantenemos la lógica de pasar los datos al body
-        if (body.containsKey("datos")) {
-            exchange.getIn().setBody(body.get("datos"));
-        }
-    }
+	    // Buscamos la estrategia y la aplicamos
+	    IRestSecurityStrategy strategy = strategies.get(function);
+	    if (strategy != null) {
+	        strategy.apply(exchange, headerConfig, datos);
+	    }
+
+	    // Mantenemos la lógica de pasar los datos al body
+	    if (body.containsKey("datos")) {
+	        exchange.getIn().setBody(body.get("datos"));
+	    }
+	}
 }

@@ -1,0 +1,30 @@
+#set($resFormulario = $body.results.get(0))
+#set($resDetalle = $body.results.get(1))
+
+{
+  "informacionGeneral": {
+    "tipoUsuario": "$!resFormulario.userType",
+    "nombreServicio": "$!resDetalle.name",
+    "lineaServicio": #if($resDetalle.serviceLine) "$resDetalle.serviceLine.get(0)" #else null #end
+  },
+  "camposPermitidos": [
+    #foreach($field in $resFormulario.permissionServiceFields)
+    {
+      "nombre": "$!field.fieldName",
+      "tipoEstructura": "$!field.serviceTypeField",
+      "visibilidad": "$!field.permissionSetting",
+      "requerido": $!field.isRequired
+    }#if($foreach.hasNext),#end
+    #end
+  ],
+  "camposFormularioDetalle": [
+    #foreach($field in $resDetalle.fields)
+    {
+      "id": "$!field.id",
+      "tipo": "$!field.type",
+      "etiqueta": "$!field.name",
+      "opcionesDisponibles": $field.options
+    }#if($foreach.hasNext),#end
+    #end
+  ]
+}

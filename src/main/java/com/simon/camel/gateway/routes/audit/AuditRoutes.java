@@ -72,6 +72,23 @@ public class AuditRoutes extends RouteBuilder {
                 exchange.getIn().setBody(log);
             })
             .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
+
+        // --- IMPLEMENTACIÓN COMPOSICIÓN ---
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_COMPOSITION)
+            .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_AUDIT_COMPOSITION)
+            .process(exchange -> {
+                Map<String, Object> log = new LinkedHashMap<>();
+                log.put("type", "COMPOSITION_TRANSACTION");
+                log.put("id", exchange.getIn().getHeader("breadcrumbId"));
+                log.put("request_data", exchange.getProperty("rawRequest"));
+                Object results = exchange.getProperty("compositionResults");
+                log.put("composition_results_count", results instanceof java.util.List
+                        ? ((java.util.List<?>) results).size()
+                        : 0);
+                log.put("response_final", exchange.getIn().getBody());
+                exchange.getIn().setBody(log);
+            })
+            .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
         
         // Concatenación de la URI estática de S3 usando variables Java
         String auditS3Endpoint = String.format(

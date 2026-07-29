@@ -1,0 +1,45 @@
+Necesito que me ayudes a realizar el ajuste en las composiciones.
+
+Cuando llamo al end-point
+http://localhost:9000/simon-sprint-camel/api/v1/composicion/gateway-to/simon-assiya/composicion-obtener-campos
+
+El esta llamando a los end-point configurados en mi application-dev.yml, asi:
+
+simon:
+  soap-configs:
+    seguros-mundial:
+      namespace: "http://www.mundialseguros.com.co/"
+  composicion:
+    simon-assiya:
+      composicion-obtener-campos:
+        operaciones: obtener-campos-formulario, obtener-campos-formulario-detalle
+        
+
+es decir que llama a las operaciones: obtener-campos-formulario y obtener-campos-formulario-detalle
+
+
+Lo que necesito es que a cada una le pase los dynamic-path y query-params respectivos, los cuales voy a diferenciar en el objeto enviado, asi:
+
+{
+  "header": {
+    "method": "GET",
+    "function": "assiya-auth",
+    "function-parameters": [
+      {
+        "name": "secret-name",
+        "value": "dev/simon-assists/assistya"
+      }
+    ],
+    "multicall": false,
+    "online": true,
+    "dynamic-path": 
+    {
+        "obtener-campos-formulario-detalle":  "63bf0d090f28b5138f14006a"
+    },
+    "query-params": { 
+        "obtener-campos-formulario": "clientFormId=8c747de5-f9d6-4f7d-b292-6bf810d80cef&userType=Final"
+    }
+  },
+  "datos": {},
+  "audit-implementation": "direct:audit-rest-s3"
+}
