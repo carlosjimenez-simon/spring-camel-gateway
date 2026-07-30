@@ -1,7 +1,7 @@
 #set($resFormulario = $body.results.get(0))
 #set($resDetalle = $body.results.get(1))
 
-## 1. Creamos un Mapa en Velocity para buscar rápido los detalles por 'id'
+## 1. Indexamos los detalles por 'id' en un Mapa
 #set($detalleMap = {})
 #if($resDetalle.fields)
   #foreach($det in $resDetalle.fields)
@@ -9,32 +9,39 @@
   #end
 #end
 
+## 2. Filtramos la lista para conservar solo los que tienen permissionSetting == "Editable"
+#set($editableFields = [])
+#if($resFormulario.permissionCustomFields)
+  #foreach($field in $resFormulario.permissionCustomFields)
+    #if($field.permissionSetting && $field.permissionSetting == "Editable")
+      #set($dummy = $editableFields.add($field))
+    #end
+  #end
+#end
+
 {
   "formName": "$!resDetalle.name",
   "fields": [
-    #if($resFormulario.permissionCustomFields)
-      #foreach($field in $resFormulario.permissionCustomFields)
-        ## Buscamos la coincidencia en el detalle usando fieldId
-        #set($detMatch = $detalleMap.get($field.fieldId))
-        {
-          "fieldId": "$!field.fieldId",
-          "fieldName": "$!field.fieldName",
-          "source": "CustomFields",
-          "isRequired": #if($field.isRequired) $field.isRequired #else false #end,
-          "type": #if($field.fieldType)"$field.fieldType"#else null #end,
-          "description": #if($detMatch && $detMatch.description)"$detMatch.description"#else null #end,
-          "options": [
-            #if($field.options && !$field.options.isEmpty())
-              #foreach($opt in $field.options)"$opt"#if($foreach.hasNext),#end#end
-            #end
-          ],
-          "features": [
-            #if($detMatch && $detMatch.features && !$detMatch.features.isEmpty())
-              #foreach($feat in $detMatch.features)"$feat"#if($foreach.hasNext),#end#end
-            #end
-          ]
-        }#if($foreach.hasNext),#end
-      #end
+    #foreach($field in $editableFields)
+      #set($detMatch = $detalleMap.get($field.fieldId))
+      {
+        "fieldId": "$!field.fieldId",
+        "fieldName": "$!field.fieldName",
+        "source": "CustomFields",
+        "isRequired": #if($field.isRequired) $field.isRequired #else false #end,
+        "type": #if($field.fieldType)"$field.fieldType"#else null #end,
+        "description": #if($detMatch && $detMatch.description)"$detMatch.description"#else null #end,
+        "options": [
+          #if($field.options && !$field.options.isEmpty())
+            #foreach($opt in $field.options)"$opt"#if($foreach.hasNext),#end#end
+          #end
+        ],
+        "features": [
+          #if($detMatch && $detMatch.features && !$detMatch.features.isEmpty())
+            #foreach($feat in $detMatch.features)"$feat"#if($foreach.hasNext),#end#end
+          #end
+        ]
+      }#if($foreach.hasNext),#end
     #end
   ]
 }
