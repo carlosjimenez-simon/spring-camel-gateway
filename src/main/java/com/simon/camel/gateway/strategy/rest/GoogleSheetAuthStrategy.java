@@ -29,8 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
 
-    private static final Pattern SPREADSHEET_ID_PATTERN =
-            Pattern.compile("docs\\.google\\.com/spreadsheets/d/([^/]+)");
+    private static final Pattern SPREADSHEET_ID_PATTERN = Pattern.compile("docs\\.google\\.com/spreadsheets/d/([^/]+)");
 
     private static final String DEFAULT_PROXY_BASE_URL = "https://sheets.googleapis.com/v4";
     private static final int MAX_ROWS_SCAN = 1000;
@@ -57,16 +56,16 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
         // 2. Extraer credenciales del AWS Secret Manager
         Map<String, String> secrets = _secretsService.getAwsSecret(secretName);
         String serviceAccountJson = secrets.get("googleServiceAccountJson");
-        
+
         if (serviceAccountJson == null) {
             throw new IllegalStateException("El secreto '" + secretName
                     + "' debe contener 'googleServiceAccountJson'.");
         }
 
         com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.fromStream(
-                new java.io.ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8))
-        ).createScoped(List.of("https://www.googleapis.com/auth/spreadsheets.readonly"));
-        
+                new java.io.ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8)))
+                .createScoped(List.of("https://www.googleapis.com/auth/spreadsheets.readonly"));
+
         credentials.refreshIfExpired();
         String token = credentials.getAccessToken().getTokenValue();
 
@@ -85,7 +84,8 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
         int colInit = asInt(xl.get("column_id_init"));
         String sheetNameRequest = asString(xl.get("sheet-name"));
         List<Map<String, Object>> colsRet = (List<Map<String, Object>>) xl.get("column_return");
-        if (colsRet == null) colsRet = List.of();
+        if (colsRet == null)
+            colsRet = List.of();
 
         // 4. Extraer spreadsheetId
         Matcher m = SPREADSHEET_ID_PATTERN.matcher(url);
@@ -146,7 +146,7 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
                 projected.add(cell);
             }
         }
-        
+
         if (datos != null) {
             datos.put("lookupCode", lookupCode);
             datos.put("matchedRow", matchIdx >= 0 ? rowInit + matchIdx : null);
@@ -164,13 +164,15 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
 
     private static String readParam(Map<String, Object> headerConfig, String name, String def) {
         Object paramsObj = headerConfig.get("function-parameters");
-        if (!(paramsObj instanceof List)) return def;
+        if (!(paramsObj instanceof List))
+            return def;
         for (Object p : (List<?>) paramsObj) {
             if (p instanceof Map) {
                 Map<?, ?> pm = (Map<?, ?>) p;
                 if (name.equals(pm.get("name"))) {
                     Object v = pm.get("value");
-                    if (v != null) return String.valueOf(v);
+                    if (v != null)
+                        return String.valueOf(v);
                 }
             }
         }
@@ -182,18 +184,21 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
     }
 
     private static int asInt(Object o) {
-        if (o == null) return 0;
-        if (o instanceof Number) return ((Number) o).intValue();
+        if (o == null)
+            return 0;
+        if (o instanceof Number)
+            return ((Number) o).intValue();
         return Integer.parseInt(String.valueOf(o));
     }
 
     @SuppressWarnings("unchecked")
     private String discoverFirstSheetTitle(RestTemplate rt, HttpEntity<Void> entity,
-                                           String baseUrl, String spreadsheetId) {
+            String baseUrl, String spreadsheetId) {
         String url = baseUrl + "/spreadsheets/" + spreadsheetId + "?fields=sheets/properties/title";
         try {
             ResponseEntity<Map> r = rt.exchange(URI.create(url), HttpMethod.GET, entity, Map.class);
-            if (r.getBody() == null) return "Hoja1";
+            if (r.getBody() == null)
+                return "Hoja1";
             Object sheetsObj = r.getBody().get("sheets");
             if (sheetsObj instanceof List && !((List<?>) sheetsObj).isEmpty()) {
                 Object first = ((List<?>) sheetsObj).get(0);
@@ -201,7 +206,8 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
                     Object props = ((Map<?, ?>) first).get("properties");
                     if (props instanceof Map) {
                         Object title = ((Map<?, ?>) props).get("title");
-                        if (title != null) return String.valueOf(title);
+                        if (title != null)
+                            return String.valueOf(title);
                     }
                 }
             }

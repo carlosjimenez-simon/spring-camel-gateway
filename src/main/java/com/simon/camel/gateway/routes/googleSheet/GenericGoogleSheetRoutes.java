@@ -63,7 +63,7 @@ public class GenericGoogleSheetRoutes extends RouteBuilder {
                 .end()
 
                 .log("Google Sheet lookup disparado para op=${header.operacion}")
-                .process("restHeaderProcessor")
+                .process("googleSheetHeaderProcessor")
 
             .onFallback()
                 .log(LoggingLevel.WARN, "Circuit Breaker activado en Google Sheet para: ${header.operacion}. Causa: ${exception.message}")

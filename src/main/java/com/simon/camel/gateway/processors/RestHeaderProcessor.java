@@ -50,7 +50,9 @@ public class RestHeaderProcessor implements Processor {
 	    }
 
 	    // Mantenemos la lógica de pasar los datos al body
-	    if (body.containsKey("datos")) {
+	    // Excepción: si la estrategia de Google Sheet ya gestionó el body, no lo sobreescribimos.
+	    boolean gsheetHandled = Boolean.TRUE.equals(exchange.getProperty("googleSheet.handled", Boolean.class));
+	    if (!gsheetHandled && body.containsKey("datos")) {
 	        exchange.getIn().setBody(body.get("datos"));
 	    }
 	}
