@@ -22,6 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 public class GenericCompositionRoutes extends RouteBuilder {
 
     private final CompositionRegistry compositionRegistry;
+    
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private org.apache.camel.ProducerTemplate producerTemplate;
 
     private static final String PROP_VALIDATION_FAILED = "compositionValidationFailed";
     private static final String PROP_COMPOSITION_RESULTS = "compositionResults";
@@ -66,9 +70,9 @@ public class GenericCompositionRoutes extends RouteBuilder {
                 .process(this::dispatchInternalOperations)
 
                 .process(this::buildTemplateInput)
-                .log("Renderizando plantilla velocity:templates/${header.organizacion}/${header.composicion}.vm con ${exchangeProperty.compositionResults.size()} respuestas internas")
+                .log("Renderizando plantilla velocity:classpath:templates/${header.organizacion}/${header.plantilla} con ${exchangeProperty.compositionResults.size()} respuestas internas")
 
-                .toD("velocity:templates/${header.organizacion}/${header.composicion}.vm")
+                .toD("velocity:classpath:templates/${header.organizacion}/${header.plantilla}")
                 .convertBodyTo(String.class)
 
                 .process(this::normalizeVelocityOutput)
@@ -155,40 +159,54 @@ public class GenericCompositionRoutes extends RouteBuilder {
         for (String opName : operations) {
             log.info("[Composición {}/{}] Ejecutando operación interna: {}", org, comp, opName);
 
+            Exchange subExchange = exchange.copy();
+
             // Re-asegurar los headers clave en cada sub-petición
-            exchange.getIn().setHeader("organizacion", org);
-            exchange.getIn().setHeader("composicion", comp);
-            exchange.getIn().setHeader("operacion", opName);
-            exchange.getIn().setHeader("audit-implementation", exchange.getProperty("audit-implementation"));
+            subExchange.getIn().setHeader("organizacion", org);
+            subExchange.getIn().setHeader("composicion", comp);
+            subExchange.getIn().setHeader("operacion", opName);
+            subExchange.getIn().setHeader("audit-implementation", exchange.getProperty("audit-implementation"));
 
             if (dynamicPathMap != null && dynamicPathMap.containsKey(opName)) {
-                exchange.getIn().setHeader("DynamicPath", dynamicPathMap.get(opName));
+                subExchange.getIn().setHeader("DynamicPath", dynamicPathMap.get(opName));
             } else {
-                exchange.getIn().removeHeader("DynamicPath");
+                subExchange.getIn().removeHeader("DynamicPath");
             }
 
             if (queryParamsMap != null && queryParamsMap.containsKey(opName)) {
-                exchange.getIn().setHeader("DynamicQueryParams", queryParamsMap.get(opName));
+                subExchange.getIn().setHeader("DynamicQueryParams", queryParamsMap.get(opName));
             } else {
-                exchange.getIn().removeHeader("DynamicQueryParams");
+                subExchange.getIn().removeHeader("DynamicQueryParams");
             }
 
             Map<String, Object> virtualBody = new LinkedHashMap<>();
             virtualBody.put("datos", datosOriginales);
             virtualBody.put("header", headerConfig);
             
-            exchange.getIn().setBody(virtualBody);
+            subExchange.getIn().setBody(virtualBody);
 
-            exchange.getContext().createProducerTemplate()
-                    .send("direct:sub-procesar-request-backend", exchange);
+            producerTemplate.send("direct:sub-procesar-request-backend", subExchange);
 
-            Object opResult = exchange.getIn().getBody();
+            Object opResult = subExchange.getIn().getBody();
+            if (opResult instanceof String) {
+                try {
+                    opResult = new com.fasterxml.jackson.databind.ObjectMapper().readValue((String) opResult, Object.class);
+                } catch (Exception e) {
+                    log.warn("No se pudo parsear el resultado de la operación '{}' como JSON. Se mantendrá como String.", opName);
+                }
+            }
             responses.add(opResult);
         }
 
         // Restaurar los headers explícitamente para el paso de la plantilla Velocity
         exchange.getIn().setHeader("organizacion", org);
         exchange.getIn().setHeader("composicion", comp);
+        
+        String plantilla = compositionRegistry.getPlantilla(org, comp);
+        if (plantilla == null || plantilla.isBlank()) {
+            plantilla = comp + ".vm";
+        }
+        exchange.getIn().setHeader("plantilla", plantilla);
 
         exchange.setProperty(PROP_COMPOSITION_RESULTS, responses);
     }

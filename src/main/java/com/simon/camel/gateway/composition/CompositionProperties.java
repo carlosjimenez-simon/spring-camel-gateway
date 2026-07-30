@@ -22,6 +22,7 @@ public class CompositionProperties {
     @Setter
     public static class ComposicionDef {
         private String operaciones;
+        private String plantilla;
     }
 
     public List<String> resolveOperations(String organizacion, String composicion) {

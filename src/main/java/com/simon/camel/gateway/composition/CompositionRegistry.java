@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.camel.CamelContext;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +27,16 @@ public class CompositionRegistry {
     private static final Pattern KEBAB_CASE = Pattern.compile("^[a-z0-9]+(-[a-z0-9]+)*$");
 
     private final CompositionProperties properties;
-    private final CamelContext camelContext;
+    private final org.springframework.core.env.Environment env;
 
-    private Map<String, Map<String, List<String>>> cache = new LinkedHashMap<>();
+    @Getter
+    @RequiredArgsConstructor
+    public static class CompositionConfig {
+        private final List<String> operations;
+        private final String plantilla;
+    }
+
+    private Map<String, Map<String, CompositionConfig>> cache = new LinkedHashMap<>();
 
     @PostConstruct
     public void initialize() {
@@ -37,13 +48,13 @@ public class CompositionRegistry {
             return;
         }
 
-        Map<String, Map<String, List<String>>> built = new LinkedHashMap<>();
+        Map<String, Map<String, CompositionConfig>> built = new LinkedHashMap<>();
 
         for (Map.Entry<String, Map<String, CompositionProperties.ComposicionDef>> orgEntry : raw.entrySet()) {
             String org = orgEntry.getKey();
             validateIdentifier(org, "organizacion");
 
-            Map<String, List<String>> byComposicion = new LinkedHashMap<>();
+            Map<String, CompositionConfig> byComposicion = new LinkedHashMap<>();
             for (Map.Entry<String, CompositionProperties.ComposicionDef> compEntry : orgEntry.getValue().entrySet()) {
                 String composicion = compEntry.getKey();
                 validateIdentifier(composicion, "composicion");
@@ -84,8 +95,9 @@ public class CompositionRegistry {
                             "Composición '" + composicion + "' de '" + org + "' quedó sin operaciones válidas.");
                 }
 
-                byComposicion.put(composicion, Collections.unmodifiableList(ops));
-                log.info("[CompositionRegistry] OK composición '{}/{}' → ops={}", org, composicion, ops);
+                String plantilla = def != null ? def.getPlantilla() : null;
+                byComposicion.put(composicion, new CompositionConfig(Collections.unmodifiableList(ops), plantilla));
+                log.info("[CompositionRegistry] OK composición '{}/{}' → ops={}, plantilla={}", org, composicion, ops, plantilla);
             }
             built.put(org, Collections.unmodifiableMap(byComposicion));
         }
@@ -97,20 +109,29 @@ public class CompositionRegistry {
     }
 
     public boolean exists(String organizacion, String composicion) {
-        Map<String, List<String>> byOrg = cache.get(organizacion);
+        Map<String, CompositionConfig> byOrg = cache.get(organizacion);
         return byOrg != null && byOrg.containsKey(composicion);
     }
 
     public List<String> getOperations(String organizacion, String composicion) {
-        Map<String, List<String>> byOrg = cache.get(organizacion);
+        Map<String, CompositionConfig> byOrg = cache.get(organizacion);
         if (byOrg == null) {
             return List.of();
         }
-        List<String> ops = byOrg.get(composicion);
-        return ops == null ? List.of() : ops;
+        CompositionConfig config = byOrg.get(composicion);
+        return config == null ? List.of() : config.getOperations();
     }
 
-    public Map<String, Map<String, List<String>>> snapshot() {
+    public String getPlantilla(String organizacion, String composicion) {
+        Map<String, CompositionConfig> byOrg = cache.get(organizacion);
+        if (byOrg == null) {
+            return null;
+        }
+        CompositionConfig config = byOrg.get(composicion);
+        return config == null ? null : config.getPlantilla();
+    }
+
+    public Map<String, Map<String, CompositionConfig>> snapshot() {
         return cache;
     }
 
@@ -132,8 +153,8 @@ public class CompositionRegistry {
     private void validateEndpointDeclared(String org, String operacion) {
         String key = "simon.endpoint." + org + "." + operacion;
         try {
-            String endpoint = camelContext.resolvePropertyPlaceholders("{{" + key + "}}");
-            if (endpoint == null || endpoint.isBlank() || endpoint.contains("{{" + key + "}}")) {
+            String endpoint = env.getProperty(key);
+            if (endpoint == null || endpoint.isBlank()) {
                 throw new IllegalStateException(
                         "Composición referencia operación '" + operacion + "' de '" + org
                                 + "' pero no existe la propiedad '" + key + "' en application*.yml.");
