@@ -1,30 +1,40 @@
 #set($resFormulario = $body.results.get(0))
 #set($resDetalle = $body.results.get(1))
 
+## 1. Creamos un Mapa en Velocity para buscar rápido los detalles por 'id'
+#set($detalleMap = {})
+#if($resDetalle.fields)
+  #foreach($det in $resDetalle.fields)
+    #set($dummy = $detalleMap.put($det.id, $det))
+  #end
+#end
+
 {
-  "informacionGeneral": {
-    "tipoUsuario": "$!resFormulario.userType",
-    "nombreServicio": "$!resDetalle.name",
-    "lineaServicio": #if($resDetalle.serviceLine) "$resDetalle.serviceLine.get(0)" #else null #end
-  },
-  "camposPermitidos": [
-    #foreach($field in $resFormulario.permissionServiceFields)
-    {
-      "nombre": "$!field.fieldName",
-      "tipoEstructura": "$!field.serviceTypeField",
-      "visibilidad": "$!field.permissionSetting",
-      "requerido": $!field.isRequired
-    }#if($foreach.hasNext),#end
-    #end
-  ],
-  "camposFormularioDetalle": [
-    #foreach($field in $resDetalle.fields)
-    {
-      "id": "$!field.id",
-      "tipo": "$!field.type",
-      "etiqueta": "$!field.name",
-      "opcionesDisponibles": $field.options
-    }#if($foreach.hasNext),#end
+  "formName": "$!resDetalle.name",
+  "fields": [
+    #if($resFormulario.permissionCustomFields)
+      #foreach($field in $resFormulario.permissionCustomFields)
+        ## Buscamos la coincidencia en el detalle usando fieldId
+        #set($detMatch = $detalleMap.get($field.fieldId))
+        {
+          "fieldId": "$!field.fieldId",
+          "fieldName": "$!field.fieldName",
+          "source": "CustomFields",
+          "isRequired": #if($field.isRequired) $field.isRequired #else false #end,
+          "type": #if($field.fieldType)"$field.fieldType"#else null #end,
+          "description": #if($detMatch && $detMatch.description)"$detMatch.description"#else null #end,
+          "options": [
+            #if($field.options && !$field.options.isEmpty())
+              #foreach($opt in $field.options)"$opt"#if($foreach.hasNext),#end#end
+            #end
+          ],
+          "features": [
+            #if($detMatch && $detMatch.features && !$detMatch.features.isEmpty())
+              #foreach($feat in $detMatch.features)"$feat"#if($foreach.hasNext),#end#end
+            #end
+          ]
+        }#if($foreach.hasNext),#end
+      #end
     #end
   ]
 }

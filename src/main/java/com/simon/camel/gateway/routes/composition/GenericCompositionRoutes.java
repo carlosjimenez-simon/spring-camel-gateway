@@ -228,14 +228,22 @@ public class GenericCompositionRoutes extends RouteBuilder {
     private void normalizeVelocityOutput(Exchange exchange) throws Exception {
         Object currentBody = exchange.getIn().getBody();
         if (currentBody == null) {
-            exchange.getIn().setBody("{}");
+            exchange.getIn().setBody(new LinkedHashMap<>());
             return;
         }
         String raw = currentBody.toString().trim();
         if (raw.isEmpty()) {
-            exchange.getIn().setBody("{}");
+            exchange.getIn().setBody(new LinkedHashMap<>());
         } else {
-            exchange.getIn().setBody(raw);
+            try {
+                // Parsear el String que generó Velocity a un Map de Java para evitar comillas escapadas (\" \n)
+                Object jsonObject = new com.fasterxml.jackson.databind.ObjectMapper().readValue(raw, Object.class);
+                exchange.getIn().setBody(jsonObject);
+            } catch (Exception e) {
+                log.error("Error al parsear la salida de Velocity a JSON válido: {}", e.getMessage());
+                // Si falla el parseo, se deja el raw para poder debuggear el error en el cuerpo
+                exchange.getIn().setBody(raw);
+            }
         }
     }
 

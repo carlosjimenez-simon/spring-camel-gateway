@@ -1,0 +1,370 @@
+Necesitamos Organizar la plantilla para la respuesta correcta. Antes que nada te indico como responde cada servicio.
+
+==========================================
+obtener-campos-formulario
+==========================================
+La respuesta de este servicio es:
+
+{
+    "userType": "Final",
+    "permissionServiceFields": [
+        {
+            "fieldName": "Nombre del usuario",
+            "serviceTypeField": "Fixed",
+            "permissionSetting": "Visible",
+            "isRequired": false,
+            "print": false
+        },
+        {
+            "fieldName": "Telefono del usuario",
+            "serviceTypeField": "Fixed",
+            "permissionSetting": "Visible",
+            "isRequired": false,
+            "print": false
+        },
+        {
+            "fieldName": "Valor base",
+            "serviceTypeField": "Fixed",
+            "permissionSetting": "Visible",
+            "isRequired": false,
+            "print": false
+        }
+    ],
+    "permissionFields": [
+        {
+            "id": null,
+            "fieldId": "636d440e077e7d87bd841b8c",
+            "fieldName": "Telefono 2",
+            "permissionSetting": "Visible",
+            "isRequired": false,
+            "print": false,
+            "fieldType": null,
+            "options": null
+        },
+        {
+            "id": null,
+            "fieldId": "63d02d45500a4c99b491c703",
+            "fieldName": "Correo electronico",
+            "permissionSetting": "Visible",
+            "isRequired": false,
+            "print": false,
+            "fieldType": null,
+            "options": null
+        },
+        {
+            "id": null,
+            "fieldId": "64a8886c2f1be1e7c49525ee",
+            "fieldName": "Marca",
+            "permissionSetting": "Visible",
+            "isRequired": false,
+            "print": false,
+            "fieldType": null,
+            "options": null
+        },
+        {
+            "id": null,
+            "fieldId": "6310d1572104005d7466e1a4",
+            "fieldName": "Cobertura",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Select",
+            "options": [
+                "Urbano",
+                "Extraurbano"
+            ]
+        },
+        {
+            "id": null,
+            "fieldId": "63bd84eadb41ed4a639737d3",
+            "fieldName": "Km adicional",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": null,
+            "options": null
+        },
+        {
+            "id": null,
+            "fieldId": "636d4325077e7d87bd841b87",
+            "fieldName": "Tomador",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": null,
+            "options": null
+        }
+    ],
+    "permissionCustomFields": [
+        {
+            "id": "431cd4da-bbef-42fe-a8d1-1641679f44bc",
+            "fieldId": "6a6787dc2c492fba777104bc",
+            "fieldName": "Tomador",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Normal",
+            "options": [
+                "1",
+                "2"
+            ]
+        },
+        {
+            "id": "02b480cc-75b8-4d1b-83e9-078bf5ab8569",
+            "fieldId": "6a6787f92c492fba777104be",
+            "fieldName": "Code",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Normal",
+            "options": []
+        },
+        {
+            "id": "89b17805-2035-4562-b2e6-953765630cc3",
+            "fieldId": "6a6788072c492fba777104bf",
+            "fieldName": "Start subscription",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Normal",
+            "options": []
+        },
+        {
+            "id": "13d62a6e-17ff-401d-a62e-87f7a637e98c",
+            "fieldId": "6a67880e2c492fba777104c0",
+            "fieldName": "End subscription",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Normal",
+            "options": []
+        },
+        {
+            "id": "c681f630-3602-4a67-9b01-eb27fe491216",
+            "fieldId": "6a6788712c492fba777104c1",
+            "fieldName": "Grúa asignada",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Select",
+            "options": [
+                "Grúa Moto",
+                "Planchon Liviano",
+                "Grua tipo 300",
+                "Grua pesada tipo 400",
+                "Grua pesada tipo 600",
+                "Grua pesada tipo 900",
+                "Grua sobredimensionado"
+            ]
+        },
+        {
+            "id": "b7b44d0f-6438-4816-a14c-c30a533c3eb6",
+            "fieldId": "6a6788d52c492fba777104c4",
+            "fieldName": "Patines",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Select",
+            "options": [
+                "1 patin rueda china",
+                "2 patin rueda china",
+                "3 patin rueda china",
+                "4 patin rueda china",
+            ]
+        },
+        {
+            "id": "8b6ad07a-a1d6-4eca-9eab-8c991afec57a",
+            "fieldId": "6a67890d2c492fba777104c6",
+            "fieldName": "Maniobra",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Select",
+            "options": [
+                "Desbloqueo de caja",
+                "Desmonte de cardan"
+            ]
+        },
+        {
+            "id": "588ba142-0274-46a1-b56d-0e2e204e94f9",
+            "fieldId": "6a678a182c492fba777104c9",
+            "fieldName": "Valor de maniobra adicional",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Value",
+            "options": []
+        },
+        {
+            "id": "d8f53cda-4f23-4479-b28c-4d2bbc50ceea",
+            "fieldId": "6a678ab22c492fba777104d3",
+            "fieldName": "MODELO",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Normal",
+            "options": []
+        },
+        {
+            "id": "92bebf91-d473-4c88-b303-85c6cd8e0a77",
+            "fieldId": "6a678c032c492fba777104d8",
+            "fieldName": "Servicio por Recobro",
+            "permissionSetting": "Oculto",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "List",
+            "options": [
+                "Si"
+            ]
+        },
+        {
+            "id": "f948fb7a-8c55-4c00-95e2-cb9656f9f392",
+            "fieldId": "6a6a91974e4f7545013daad0",
+            "fieldName": "CM_Firma",
+            "permissionSetting": "Editable",
+            "isRequired": false,
+            "print": false,
+            "fieldType": "Signature",
+            "options": []
+        }
+    ],
+    "isComplete": false,
+    "createService": false,
+    "hasAppExperience": false
+}
+
+============================================
+obtener-campos-formulario-detalle
+============================================
+
+{
+    "name": "Grua",
+    "description": null,
+    "serviceLine": [
+        "Vehicular"
+    ],
+    "fields": [
+        {
+            "id": "636d440e077e7d87bd841b8c",
+            "type": "Phone",
+            "name": "Telefono 2",
+            "description": "",
+            "options": [
+                ""
+            ],
+            "features": [
+                "Spaces",
+                "Numbers"
+            ]
+        },
+        {
+            "id": "63d02d45500a4c99b491c703",
+            "type": "E-mail",
+            "name": "Correo electronico",
+            "description": "",
+            "options": [
+                ""
+            ],
+            "features": []
+        },
+        {
+            "id": "64a8886c2f1be1e7c49525ee",
+            "type": "Select",
+            "name": "Marca",
+            "description": "",
+            "options": [
+                "Abarth",
+                "AC Cars",
+                "Acura",
+                "Adamastor",
+                "Toyota",
+                "Otros"
+            ],
+            "features": []
+        },
+        {
+            "id": "644860f1ea235c634a3833be",
+            "type": "Normal",
+            "name": "Linea",
+            "description": "",
+            "options": [
+                ""
+            ],
+            "features": []
+        },
+        {
+            "id": "65df93e7a9220ca636a1a27e",
+            "type": "Select",
+            "name": "Caja de velocidades",
+            "description": "",
+            "options": [
+                "Mecanico",
+                "Automatico"
+            ],
+            "features": []
+        },
+        {
+            "id": "640f85cc485bb4d8cc82cc3c",
+            "type": "File",
+            "name": "Archivos",
+            "description": "",
+            "options": [
+                ""
+            ],
+            "features": []
+        },
+        {
+            "id": "640f85b4485bb4d8cc82cc3b",
+            "type": "Photo",
+            "name": "Fotos",
+            "description": "",
+            "options": [
+                ""
+            ],
+            "features": []
+        },
+        {
+            "id": "636d4325077e7d87bd841b87",
+            "type": "Normal",
+            "name": "Tomador",
+            "description": "",
+            "options": [
+                ""
+            ],
+            "features": [
+                "Spaces",
+                "Numbers"
+            ]
+        }
+    ],
+    "id": "63bf0d090f28b5138f14006a",
+    "createdDate": "2025-10-31T22:39:56.411Z"
+}
+
+
+======================================================
+Los dos servicios se correspondes asi
+
+obtener-campos-formulario-detalle su campo  id corresponde con el servicio obtener-campos-formulario con el campo fieldId
+======================================================
+
+La respuesta va necesitamos construir asi y solo de la informacion que esta en la estructura  obtener-campos-formulario -> permissionCustomFields
+
+{
+  "formName": -> Este campo sale de la operacion obtener-campos-formulario-detalle y se llama
+  "fields": [
+    {
+      "fieldId": -> este campo se obtiene de obtener-campos-formulario -> fieldId,
+      "fieldName": -> este campo se obtiene de obtener-campos-formulario -> fieldName,
+      "source": "CustomFields" -> valos constante,
+      "isRequired": -> este campo se obtiene de obtener-campos-formulario -> isRequired,
+      "type": "Fixed" -> este campo se obtiene de obtener-campos-formulario fieldType->
+      "description": -> este campo se obtiene de obtener-campos-formulario-detalle -> description,
+      "options": -> este campo se obtiene de obtener-campos-formulario fieldType-> opcionesDisponibles,
+      "features": -> este campo se obtiene de obtener-campos-formulario-detalle -> features,
+    }
+  ]
+}
+
+
+Te anexo la plantilla que tenia hasta el momento.
