@@ -109,5 +109,17 @@ public class AuditRoutes extends RouteBuilder {
             //.to("aws2-s3://{{audit.s3.bucket}}?region={{audit.s3.region}}&useDefaultCredentialsProvider={{audit.s3.use-default-credentials}}")
             .to(auditS3Endpoint)
             .log("Auditoría [${header.audit-implementation}] guardada en S3");
+        
+        from(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_FILES)
+        .routeId(Constants.SIMON_SPRING_CAMEL_ROUTE_ID_AUDIT_FILES)
+        .process(exchange -> {
+            Map<String, Object> log = new LinkedHashMap<>();
+            log.put("type", "FILES_TRANSACTION");
+            log.put("id", exchange.getIn().getHeader("breadcrumbId"));
+            log.put("request_data", exchange.getProperty("rawRequest"));
+            log.put("response_final", exchange.getIn().getBody());
+            exchange.getIn().setBody(log);
+        })
+        .to(Constants.SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_UPLOAD_S3);
     }
 }

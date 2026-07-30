@@ -39,5 +39,20 @@ public final class Constants {
 	/**end - End-Points From*/
 	
 	
+	/**init - Routes Id*/
+    public static final String SIMON_SPRING_CAMEL_ROUTE_ID_GATEWAY_GENERIC_FILES = "generic-files-gateway";
+    public static final String SIMON_SPRING_CAMEL_ROUTE_ID_FILES = "simon-route-core-files";
+    public static final String SIMON_SPRING_CAMEL_ROUTE_ID_AUDIT_FILES = "simon-route-audit-files";
+    /**end - Routes Id*/
+
+    /**init - Rutas Base*/
+    public static final String SIMON_SPRING_CAMEL_ROUTE_BASE_GENERIC_FILES = "/api/v1/files";
+    /**end - Rutas Base*/
+
+    /**init - End-Points From*/
+    public static final String SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_GENERIC_FILES = "direct:process-generic-files";
+    public static final String SIMON_SPRING_CAMEL_DIRECT_FROM_PROCESAR_AUDIT_GENERIC_FILES = "direct:audit-generic-files-s3";
+    /**end - End-Points From*/
+	
 
 }
