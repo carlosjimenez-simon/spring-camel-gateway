@@ -56,18 +56,22 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
 
         // 2. Extraer credenciales del AWS Secret Manager
         Map<String, String> secrets = _secretsService.getAwsSecret(secretName);
-        String email = secrets.get("google-service-account");
-        String password = secrets.get("password");
-        if (email == null || password == null) {
+        String serviceAccountJson = secrets.get("googleServiceAccountJson");
+        
+        if (serviceAccountJson == null) {
             throw new IllegalStateException("El secreto '" + secretName
-                    + "' debe contener 'google-service-account' y 'password'.");
+                    + "' debe contener 'googleServiceAccountJson'.");
         }
 
-        String authHeader = "Basic " + Base64.getEncoder()
-                .encodeToString((email + ":" + password).getBytes(StandardCharsets.UTF_8));
+        com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.fromStream(
+                new java.io.ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8))
+        ).createScoped(List.of("https://www.googleapis.com/auth/spreadsheets.readonly"));
+        
+        credentials.refreshIfExpired();
+        String token = credentials.getAccessToken().getTokenValue();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", authHeader);
+        headers.setBearerAuth(token);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         HttpEntity<Void> authEntity = new HttpEntity<>(headers);
 
@@ -130,10 +134,6 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
         }
 
         // 8. Proyectar columnas solicitadas y armar respuesta
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("lookupCode", lookupCode);
-        body.put("matchedRow", matchIdx >= 0 ? rowInit + matchIdx : null);
-
         List<Map<String, Object>> projected = new ArrayList<>();
         if (matchIdx >= 0) {
             List<Object> matchedRow = values.get(matchIdx);
@@ -146,14 +146,18 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
                 projected.add(cell);
             }
         }
-        body.put("values", projected);
+        
+        if (datos != null) {
+            datos.put("lookupCode", lookupCode);
+            datos.put("matchedRow", matchIdx >= 0 ? rowInit + matchIdx : null);
+            datos.put("values", projected);
+        }
 
-        exchange.getIn().setBody(body);
         exchange.setProperty("googleSheet.handled", true);
         exchange.setProperty("gsheet.lookupCode", lookupCode);
-        exchange.setProperty("gsheet.matchedRow", body.get("matchedRow"));
+        exchange.setProperty("gsheet.matchedRow", matchIdx >= 0 ? rowInit + matchIdx : null);
         log.info("Google Sheet lookup finalizado | matchedRow={} | valores proyectados={}",
-                body.get("matchedRow"), projected.size());
+                matchIdx >= 0 ? rowInit + matchIdx : null, projected.size());
     }
 
     // ---------- helpers ----------
