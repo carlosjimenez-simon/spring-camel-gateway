@@ -36,6 +36,11 @@ simon:
   soap-configs:
     seguros-mundial:
       namespace: "http://www.mundialseguros.com.co/"
+  composicion:
+    simon-assiya:
+      composicion-obtener-campos:
+        operaciones: obtener-campos-formulario, obtener-campos-formulario-detalle
+        plantilla: composicion-obtener-campos.vm
   endpoint:
     datos-colombia:
       lista-paquetes: https://datosabiertos.bogota.gov.co:8089/api/3/action/package_list
@@ -63,7 +68,9 @@ simon:
       #webhook-status: https://qa.wiptool.com/status
       webhook-status: https://webhook.site/59c5a1b4-cbc1-4367-b1c3-9b24a2411a21
       #webhook-status: https://webhook.site/96bc7738-3070-4b7a-b272-11d56d991539
-      precio-servicio: https://webhook.site/25d6d133-b875-4ae1-a5dc-debf98243892		
+      precio-servicio: https://webhook.site/25d6d133-b875-4ae1-a5dc-debf98243892
+      obtener-campos-formulario: https://qa.wiptool.com/business/api/v1/Permission/GetPermissionByClientFormId
+      obtener-campos-formulario-detalle: https://qa.wiptool.com/business/api/v1/Form		
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
