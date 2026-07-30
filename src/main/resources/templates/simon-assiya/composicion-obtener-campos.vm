@@ -9,12 +9,59 @@
   #end
 #end
 
-## 2. Filtramos la lista para conservar solo los que tienen permissionSetting == "Editable"
-#set($editableFields = [])
+## 2. Unificamos y filtramos los campos ("Editable" o "Visible") de las 3 estructuras
+#set($filteredFields = [])
+
+## 2.1. Procesar permissionServiceFields
+#if($resFormulario.permissionServiceFields)
+  #foreach($field in $resFormulario.permissionServiceFields)
+    #if($field.permissionSetting && ($field.permissionSetting == "Editable" || $field.permissionSetting == "Visible"))
+      #set($fieldItem = {
+        "fieldId": $field.fieldName,
+        "fieldName": $field.fieldName,
+        "permissionSetting": $field.permissionSetting,
+        "source": "PermissionServiceFields",
+        "isRequired": $field.isRequired,
+        "fieldType": $field.serviceTypeField,
+        "options": []
+      })
+      #set($dummy = $filteredFields.add($fieldItem))
+    #end
+  #end
+#end
+
+## 2.2. Procesar permissionFields
+#if($resFormulario.permissionFields)
+  #foreach($field in $resFormulario.permissionFields)
+    #if($field.permissionSetting && ($field.permissionSetting == "Editable" || $field.permissionSetting == "Visible"))
+      #set($fieldItem = {
+        "fieldId": $field.fieldId,
+        "fieldName": $field.fieldName,
+        "permissionSetting": $field.permissionSetting,
+        "source": "PermissionFields",
+        "isRequired": $field.isRequired,
+        "fieldType": $field.fieldType,
+        "options": $field.options
+      })
+      #set($dummy = $filteredFields.add($fieldItem))
+    #end
+  #end
+#end
+
+## 2.3. Procesar permissionCustomFields
 #if($resFormulario.permissionCustomFields)
   #foreach($field in $resFormulario.permissionCustomFields)
-    #if($field.permissionSetting && $field.permissionSetting == "Editable")
-      #set($dummy = $editableFields.add($field))
+    #if($field.permissionSetting && ($field.permissionSetting == "Editable" || $field.permissionSetting == "Visible"))
+      #set($fieldItem = {
+        "fieldId": $field.fieldId,
+        "fieldName": $field.fieldName,
+        "permissionSetting": $field.permissionSetting,
+        "source": "CustomFields",
+        "isRequired": $field.isRequired,
+        "fieldType": $field.fieldType,
+        "options": $field.options
+      })
+      #set($dummy = $filteredFields.add($fieldItem))
     #end
   #end
 #end
@@ -22,12 +69,13 @@
 {
   "formName": "$!resDetalle.name",
   "fields": [
-    #foreach($field in $editableFields)
+    #foreach($field in $filteredFields)
       #set($detMatch = $detalleMap.get($field.fieldId))
       {
         "fieldId": "$!field.fieldId",
         "fieldName": "$!field.fieldName",
-        "source": "CustomFields",
+        "permissionSetting": "$!field.permissionSetting",
+        "source": "$!field.source",
         "isRequired": #if($field.isRequired) $field.isRequired #else false #end,
         "type": #if($field.fieldType)"$field.fieldType"#else null #end,
         "description": #if($detMatch && $detMatch.description)"$detMatch.description"#else null #end,

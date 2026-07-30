@@ -59,7 +59,7 @@ simon:
       buscar-servicio: https://qa.wiptool.com/service/api/v1/Service/search
       #buscar-servicio: https://webhook.site/67e9c823-7c4d-45e4-bf9c-33fc9b225f8d
       # Endpoint 8: Búsqueda de suscripciones
-      buscar-suscripciones: https://qa.wiptool.com/Customer/Subscription?companyId=693042b8c120e2c6e2d928d5
+      buscar-suscripciones: https://qa.wiptool.com/Customer/api/v1/Customer/Subscription?companyId=693042b8c120e2c6e2d928d5&businessUnitId=693042c8c120e2c6e2d928d7
       #buscar-suscripciones: https://webhook.site/4e4a7bec-eaab-4d3a-a9e2-efb4c010b9c4
       # Endpoint 9: Detalles de la suscripción (consumo)
       detalle-suscripcion: https://qa.wiptool.com/Customer/api/v1/Customer/Subscription/Consumption
