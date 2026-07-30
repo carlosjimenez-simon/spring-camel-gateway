@@ -69,7 +69,9 @@ simon:
       #webhook-status: https://webhook.site/59c5a1b4-cbc1-4367-b1c3-9b24a2411a21
       precio-servicio: https://webhook.site/25d6d133-b875-4ae1-a5dc-debf98243892
       obtener-campos-formulario: https://qa.wiptool.com/business/api/v1/Permission/GetPermissionByClientFormId
-      obtener-campos-formulario-detalle: https://qa.wiptool.com/business/api/v1/Form		
+      obtener-campos-formulario-detalle: https://qa.wiptool.com/business/api/v1/Form
+      subir-documents: https://qa.wiptool.com/File/v1/Upload
+      cancelar-servicio: https://qa.wiptool.com/service/api/v2/Service/693042b8c120e2c6e2d928d5/service/67a0dcadba440e5f0db90ccc
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
