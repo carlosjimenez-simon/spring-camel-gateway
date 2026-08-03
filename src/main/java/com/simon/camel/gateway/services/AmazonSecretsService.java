@@ -29,7 +29,8 @@ public class AmazonSecretsService {
             GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
             return objectMapper.readValue(valueResponse.secretString(), Map.class);
         } catch (Exception e) {
-            throw new RuntimeException("Error obteniendo secreto: " + secretName, e);
+            log.error("Error from AWS Secrets Manager for secret {}: {}", secretName, e.getMessage(), e);
+            throw new RuntimeException("Error obteniendo secreto: " + secretName + ". Cause: " + e.getMessage(), e);
         }
     }
 }

@@ -363,7 +363,7 @@ public class GenericRestRoutes extends RouteBuilder {
             .log("📤 JSON enviado al Backend para [${header.organizacion}/${header.operacion}]: ${body}")
             
             // === 5. LIMPIEZA DE HEADERS PRESERVANDO EL CAMELHTTPQUERY ===
-            .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField", "Fineract-Platform-TenantId", "CamelHttpQuery")
+            .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField", "Fineract-Platform-TenantId", "CamelHttpQuery", "x-Gateway-APIKey")
             
             .setHeader("Content-Type", constant("application/json"))
             .setHeader("Accept", constant("application/json"))

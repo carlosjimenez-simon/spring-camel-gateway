@@ -77,6 +77,27 @@ simon:
       obtener-campos-formulario-detalle: https://qa.wiptool.com/business/api/v1/Form
       subir-documents: https://qa.wiptool.com/File/v1/Upload
       cancelar-servicio: https://qa.wiptool.com/service/api/v2/Service/693042b8c120e2c6e2d928d5/service/67a0dcadba440e5f0db90ccc
+    finandina:
+      #Endpoints para tarjeta de credito (tc) Finandina
+      #Modulo Support
+      bloquear: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/LockTC
+      desbloquear: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/UnlockTC
+      activar: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/ActivateTC
+      reexpedir: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/ForwardTC
+      #Modulo Account
+      consulta: https://developer-portal-sbx.bdf.com.co:5555/gateway/Account/1.1/BasicDataCard
+      #Modulo Inquiries
+      cvv-dinamico: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/CVVDinamicTC
+      consulta-movimientos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/MovementsTC
+      consulta-documentos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/DocumentsTC
+      #Modulo Signon
+      biometria: https://developer-portal-sbx.bdf.com.co:5555/gateway/Signon/1.0/GetBiometric
+      #Modulo Payments
+      bancos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Payments/1.0/GetBankList
+      crear-transaccion: https://developer-portal-sbx.bdf.com.co:5555/gateway/Payments/1.0/CreateTransactionPayment
+      estado-transaccion: https://developer-portal-sbx.bdf.com.co:5555/gateway/Payments/1.0/GetTransactionStatus
+      #Modulo Firma Digital
+      firma-digital: https://developer-portal-sbx.bdf.com.co:5555/gateway/FirmaDigital/1.0/Save
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:8443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:8443/SOATMundial.asmx
