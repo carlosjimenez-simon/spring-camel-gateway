@@ -79,7 +79,7 @@ public class GenericSoapRoutes extends RouteBuilder {
                     .failureRateThreshold(50.0f) // Mismo umbral del 50%
                     .waitDurationInOpenState(30) // Espera de 15 segundos en Open State
                     .timeoutEnabled(true)        
-                    .timeoutDuration(5000)
+                    .timeoutDuration(30000)
                     .bulkheadEnabled(true)
                     .bulkheadMaxConcurrentCalls(30)
                 .end() // Cierra resiliencia4j
