@@ -75,24 +75,24 @@ simon:
     finandina:
       #Endpoints para tarjeta de credito (tc) Finandina
       #Modulo Support
-      #bloquear: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/LockTC
-      bloquear: https://webhook.site/18541156-e0f1-400f-bf51-76e18ddec18c
-      #desbloquear: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/UnlockTC
-      desbloquear: https://webhook.site/30c963c2-64ef-4aa4-aad3-e10568dccd93
-      #activar: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/ActivateTC
-      activar: https://webhook.site/633a3420-1d99-48ea-8d0d-781d771a42d2
-      #reexpedir: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/ForwardTC
-      reexpedir: https://webhook.site/71b5a793-468a-403a-990b-39c9f5807e4b
+      bloquear: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/LockTC
+      #bloquear: https://webhook.site/18541156-e0f1-400f-bf51-76e18ddec18c
+      desbloquear: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/UnlockTC
+      #desbloquear: https://webhook.site/30c963c2-64ef-4aa4-aad3-e10568dccd93
+      activar: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/ActivateTC
+      #activar: https://webhook.site/633a3420-1d99-48ea-8d0d-781d771a42d2
+      reexpedir: https://developer-portal-sbx.bdf.com.co:5555/gateway/Support/1.0/ForwardTC
+      #reexpedir: https://webhook.site/71b5a793-468a-403a-990b-39c9f5807e4b
       #Modulo Account
       consulta: https://developer-portal-sbx.bdf.com.co:5555/gateway/Account/1.1/BasicDataCard
       #consulta: https://webhook.site/ddba925a-3b04-4a51-86f5-0d8dd55eac82
       #Modulo Inquiries
-      #cvv-dinamico: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/CVVDinamicTC
-      cvv-dinamico: https://webhook.site/18541156-e0f1-400f-bf51-76e18ddec18c
+      cvv-dinamico: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/CVVDinamicTC
+      #cvv-dinamico: https://webhook.site/18541156-e0f1-400f-bf51-76e18ddec18c
       #consulta-movimientos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/MovementsTC
-      consulta-movimientos: https://webhook.site/f0ae5c2c-0e92-4765-abc8-6766ff320023
+      consulta-movimientos: https://webhook.site/d393d420-9654-4814-bc12-54710fdc889e
       #consulta-documentos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/DocumentsTC
-      consulta-documentos: https://webhook.site/3eac01aa-500a-4f04-a90b-19478846752c
+      consulta-documentos: https://webhook.site/8ce6d0fe-b5f6-4c47-a91d-ff5df64eeb2e
       #Modulo Signon
       biometria: https://developer-portal-sbx.bdf.com.co:5555/gateway/Signon/1.0/GetBiometric
       #Modulo Payments
