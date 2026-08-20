@@ -101,6 +101,11 @@ simon:
       estado-transaccion: https://developer-portal-sbx.bdf.com.co:5555/gateway/Payments/1.0/GetTransactionStatus
       #Modulo Firma Digital
       firma-digital: https://developer-portal-sbx.bdf.com.co:5555/gateway/FirmaDigital/1.0/Save
+    promotec:
+      #Operaciones de consulta
+      poliza: https://webhook.site/4cc436e2-56c7-4a05-ae59-35df3f751acc
+      poliza-cedula: https://webhook.site/b3b35218-e0e3-442d-b745-e23d3f5ea482
+      poliza-placa: https://webhook.site/c68a2c63-0699-4161-bf72-c7ce560052fc
     seguros-mundial:
       consulta-vehiculo-RCE-homologado: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       anular-poliza: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
