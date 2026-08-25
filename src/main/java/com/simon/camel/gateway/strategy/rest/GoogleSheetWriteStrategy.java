@@ -100,10 +100,16 @@ public class GoogleSheetWriteStrategy implements IRestSecurityStrategy {
                 : sheetNameRequest;
 
         // 6. Determinar el modo de escritura
+        String explicitAction = asString(xl.get("action"));
+        if (explicitAction == null) explicitAction = asString(datos.get("action"));
+
         // MODO A: Actualización por Filas y Columnas específicas (batchUpdate)
         // Ejemplo: datos.rows = [ { "row": 18, "cells": [{"column": 3, "value": "x"}, {"column": 4, "value": "y"}] } ]
         // o datos.cells = [ {"row": 18, "column": 3, "value": "x"} ]
-        List<Map<String, Object>> batchData = buildBatchUpdateData(sheetName, datos, xl, proxyBaseUrl, spreadsheetId, authGetEntity);
+        List<Map<String, Object>> batchData = new ArrayList<>();
+        if (!"append".equalsIgnoreCase(explicitAction)) {
+            batchData = buildBatchUpdateData(sheetName, datos, xl, proxyBaseUrl, spreadsheetId, authGetEntity);
+        }
 
         if (!batchData.isEmpty()) {
             // Ejecutar batchUpdate
@@ -141,9 +147,13 @@ public class GoogleSheetWriteStrategy implements IRestSecurityStrategy {
 
         // MODO B: Append clásico (añadir filas al final o en rango general)
         String customRange = asString(xl.get("range"));
+        int startRow = asInt(xl.get("row_id_init"));
+        if (startRow <= 0) startRow = asInt(datos.get("row_id_init"));
+        if (startRow <= 0) startRow = 5; // Defaulting to 5 to protect headers
+
         String targetRange = customRange != null && !customRange.isBlank()
                 ? customRange
-                : "'" + sheetName + "'!A1";
+                : "'" + sheetName + "'!A" + startRow;
 
         List<List<Object>> rowsToWrite = extractRowsToWrite(datos, xl);
         Map<String, Object> requestBody = new LinkedHashMap<>();
@@ -359,11 +369,30 @@ public class GoogleSheetWriteStrategy implements IRestSecurityStrategy {
                             result.add(new ArrayList<>((List<Object>) item));
                         }
                     }
+                    return result;
+                } else if (list.get(0) instanceof Map<?, ?>) {
+                    for (Object item : list) {
+                        if (item instanceof Map<?, ?>) {
+                            Map<String, Object> rMap = (Map<String, Object>) item;
+                            if (rMap.containsKey("cells") && rMap.get("cells") instanceof List<?>) {
+                                result.add(mapCellsToRow((List<?>) rMap.get("cells")));
+                            } else if (rMap.containsKey("values") && rMap.get("values") instanceof Map<?, ?>) {
+                                result.add(mapValuesToRow((Map<?, ?>) rMap.get("values")));
+                            }
+                        }
+                    }
+                    if (!result.isEmpty()) return result;
                 } else {
                     result.add(new ArrayList<>((List<Object>) list));
+                    return result;
                 }
-                return result;
             }
+        }
+
+        Object cellsObj = datos.get("cells");
+        if (cellsObj instanceof List<?>) {
+            result.add(mapCellsToRow((List<?>) cellsObj));
+            return result;
         }
 
         List<Map<String, Object>> colOrder = (List<Map<String, Object>>) xl.get("column_order");
@@ -380,6 +409,47 @@ public class GoogleSheetWriteStrategy implements IRestSecurityStrategy {
         List<Object> row = new ArrayList<>(datos.values());
         result.add(row);
         return result;
+    }
+
+    private List<Object> mapCellsToRow(List<?> cellsList) {
+        int maxCol = 0;
+        for (Object cObj : cellsList) {
+            if (cObj instanceof Map<?, ?>) {
+                int col = asInt(((Map<?, ?>) cObj).get("column"));
+                if (col > maxCol) maxCol = col;
+            }
+        }
+        if (maxCol == 0) return new ArrayList<>();
+
+        List<Object> rowData = new ArrayList<>(Collections.nCopies(maxCol, ""));
+        for (Object cObj : cellsList) {
+            if (cObj instanceof Map<?, ?>) {
+                Map<String, Object> cMap = (Map<String, Object>) cObj;
+                int col = asInt(cMap.get("column"));
+                if (col > 0) {
+                    rowData.set(col - 1, cMap.get("value"));
+                }
+            }
+        }
+        return rowData;
+    }
+
+    private List<Object> mapValuesToRow(Map<?, ?> valuesMap) {
+        int maxCol = 0;
+        for (Object key : valuesMap.keySet()) {
+            int col = asInt(key);
+            if (col > maxCol) maxCol = col;
+        }
+        if (maxCol == 0) return new ArrayList<>();
+
+        List<Object> rowData = new ArrayList<>(Collections.nCopies(maxCol, ""));
+        for (Map.Entry<?, ?> entry : valuesMap.entrySet()) {
+            int col = asInt(entry.getKey());
+            if (col > 0) {
+                rowData.set(col - 1, entry.getValue());
+            }
+        }
+        return rowData;
     }
 
     // ---------- helpers ----------

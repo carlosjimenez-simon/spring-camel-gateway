@@ -80,6 +80,16 @@ public class GenericRestRoutes extends RouteBuilder {
             // EVALUACIÓN DE CAMINOS (Splitter para Multicall)
             // =================================================================
             .choice()
+                // --- CAMINO 0: ESTRATEGIA STANDALONE (Ej: Google Sheets) ---
+                .when(exchangeProperty("googleSheet.handled").isEqualTo(true))
+                    .log("Estrategia ejecutada y manejada internamente (ej: Google Sheets). Omitiendo llamado al backend...")
+                    .process(exchange -> {
+                        Map<?, ?> currentBody = exchange.getIn().getBody(Map.class);
+                        if (currentBody != null && currentBody.containsKey("datos")) {
+                            exchange.getIn().setBody(currentBody.get("datos"));
+                        }
+                    })
+                    
                 // --- CAMINO A: MULTICALL ACTIVADO ---
                 .when(header("Multicall").isEqualTo(true))
                     .log("Detectado arreglo de datos. Iniciando Splitter...")
