@@ -373,7 +373,7 @@ public class GenericRestRoutes extends RouteBuilder {
             .log("📤 JSON enviado al Backend para [${header.organizacion}/${header.operacion}]: ${body}")
             
             // === 5. LIMPIEZA DE HEADERS PRESERVANDO EL CAMELHTTPQUERY ===
-            .removeHeaders("*", "Authorization", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField", "Fineract-Platform-TenantId", "CamelHttpQuery", "x-Gateway-APIKey")
+            .removeHeaders("*", "Authorization", "X-API-KEY", "X-API-Version", "MetodoDestino", "organizacion", "operacion", "audit-implementation", "breadcrumbId", "CacheOnline", "CacheKeyField", "Fineract-Platform-TenantId", "CamelHttpQuery", "x-Gateway-APIKey")
             
             .setHeader("Content-Type", constant("application/json"))
             .setHeader("Accept", constant("application/json"))
@@ -418,6 +418,7 @@ public class GenericRestRoutes extends RouteBuilder {
                 //.toD("${properties:simon.endpoint.${header.organizacion}.${header.operacion}.split('\\\\?')[0]}${exchangeProperty.CalculatedDynamicPath}?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier")
                 
                 .convertBodyTo(String.class)
+                .log("📥 Respuesta recibida del backend: ${body}")
             .onFallback()
                 .log("⚠️ Alerta: Circuit Breaker activado en sub-proceso para la operación: ${header.operacion}")
                 .log(org.apache.camel.LoggingLevel.WARN, "⚠️ Alerta: Circuit Breaker ejecutando Fallback para: ${header.operacion}. Causa en Exchange: ${exception.message}")

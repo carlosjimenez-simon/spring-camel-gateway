@@ -2,7 +2,7 @@
 
 # Configuración de variables
 IMAGE_NAME="simonmovilidad/camel-gateway"
-TAG="0.0.1"
+TAG="1.0.1"
 FULL_IMAGE_PATH="$IMAGE_NAME:$TAG"
 
 echo "🚀 Iniciando proceso de despliegue para $FULL_IMAGE_PATH..."
