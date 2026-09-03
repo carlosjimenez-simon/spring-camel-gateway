@@ -47,6 +47,7 @@ simon:
     finanzauto:
       get-vehicles: https://www.finanzauto.com.co/Finanzauto.Runt.Api/api/vehicles
       get-municipalities: https://www.finanzauto.com.co/MasterServices/api/v2/municipalities
+      get-departments: https://www.finanzauto.com.co/MasterServices/api/v2/departments
     simon-fineract:
       clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients
       savingsproducts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
