@@ -171,6 +171,10 @@ simon:
       expedir-poliza-xml: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       generar-tasa-runt: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
       validar-placa-tarifa-pais: https://apiemitest.mundialseguros.com.co:443/SOATMundial.asmx
+    sbs:
+      emision: https://devsyli.sbseguros.co/sbs-api-fileProcessing/api/genericLoadIntakes/individual
+      cancelacion: https://devsyli.sbseguros.co/sbs-api-fileProcessing/api/cancelation/individualPolicy/sponsor/jLfwl7rcx6Tduww5XuUWTA==
+      consulta: https://devsyli.sbseguros.co/sbs-api-fileProcessing/api/product/configuration/getBySponsor/jLfwl7rcx6Tduww5XuUWTA==
 
 audit:
   s3:
