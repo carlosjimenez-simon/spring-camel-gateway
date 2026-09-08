@@ -19,41 +19,43 @@ import java.util.Map;
 public class RestHeaderProcessor implements Processor {
 
 	private final Map<String, IRestSecurityStrategy> strategies = new HashMap<>();
-	
+
 	@Autowired
-    public RestHeaderProcessor(List<IRestSecurityStrategy> strategyList) {
-        // Mapeamos cada estrategia por su nombre de función
-        for (IRestSecurityStrategy strategy : strategyList) {
-        	log.info(strategy.getFunctionName());
-            strategies.put(strategy.getFunctionName(), strategy);
-        }
-    }
+	public RestHeaderProcessor(List<IRestSecurityStrategy> strategyList) {
+		// Mapeamos cada estrategia por su nombre de función
+		for (IRestSecurityStrategy strategy : strategyList) {
+			log.info(strategy.getFunctionName());
+			strategies.put(strategy.getFunctionName(), strategy);
+		}
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void process(Exchange exchange) throws Exception {
-	    Map<String, Object> body = exchange.getIn().getBody(Map.class);
+		Map<String, Object> body = exchange.getIn().getBody(Map.class);
 
-	    // 1. Validar que body no sea nulo y contenga la clave "header" ANTES de hacer .get()
-	    if (body == null || !body.containsKey("header")) {
-	        return;
-	    }
+		// 1. Validar que body no sea nulo y contenga la clave "header" ANTES de hacer
+		// .get()
+		if (body == null || !body.containsKey("header")) {
+			return;
+		}
 
-	    Map<String, Object> datos = (Map<String, Object>) body.get("datos");
-	    Map<String, Object> headerConfig = (Map<String, Object>) body.get("header");
-	    String function = (String) headerConfig.get("function");
+		Map<String, Object> datos = (Map<String, Object>) body.get("datos");
+		Map<String, Object> headerConfig = (Map<String, Object>) body.get("header");
+		String function = (String) headerConfig.get("function");
 
-	    // Buscamos la estrategia y la aplicamos
-	    IRestSecurityStrategy strategy = strategies.get(function);
-	    if (strategy != null) {
-	        strategy.apply(exchange, headerConfig, datos);
-	    }
+		// Buscamos la estrategia y la aplicamos
+		IRestSecurityStrategy strategy = strategies.get(function);
+		if (strategy != null) {
+			strategy.apply(exchange, headerConfig, datos);
+		}
 
-	    // Mantenemos la lógica de pasar los datos al body
-	    // Excepción: si la estrategia de Google Sheet ya gestionó el body, no lo sobreescribimos.
-	    boolean gsheetHandled = Boolean.TRUE.equals(exchange.getProperty("googleSheet.handled", Boolean.class));
-	    if (!gsheetHandled && body.containsKey("datos")) {
-	        exchange.getIn().setBody(body.get("datos"));
-	    }
+		// Mantenemos la lógica de pasar los datos al body
+		// Excepción: si la estrategia de Google Sheet ya gestionó el body, no lo
+		// sobreescribimos.
+		boolean gsheetHandled = Boolean.TRUE.equals(exchange.getProperty("googleSheet.handled", Boolean.class));
+		if (!gsheetHandled && body.containsKey("datos")) {
+			exchange.getIn().setBody(body.get("datos"));
+		}
 	}
 }

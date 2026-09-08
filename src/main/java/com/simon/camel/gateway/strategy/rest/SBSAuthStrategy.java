@@ -51,34 +51,36 @@ public class SBSAuthStrategy implements IRestSecurityStrategy {
 
         // 3. Obtener el Token de SBS
         String authUrl = "https://devsyli.sbseguros.co/sbs-api-fileProcessing/api/auth";
-        
+
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-        
+
         Map<String, String> authBody = new HashMap<>();
         authBody.put("appKey", appKey);
         authBody.put("user", user);
-        
-        org.springframework.http.HttpEntity<Map<String, String>> request = new org.springframework.http.HttpEntity<>(authBody, headers);
-        
+
+        org.springframework.http.HttpEntity<Map<String, String>> request = new org.springframework.http.HttpEntity<>(
+                authBody, headers);
+
         log.info("Llamando al servicio de autenticacion de SBS...");
         org.springframework.http.ResponseEntity<Map> response = restTemplate.postForEntity(authUrl, request, Map.class);
-        
+
         Map<String, Object> responseBody = response.getBody();
         if (responseBody == null || !responseBody.containsKey("data")) {
             throw new IllegalStateException("Respuesta de auth SBS invalida o sin data");
         }
-        
+
         Map<String, Object> data = (Map<String, Object>) responseBody.get("data");
         String token = (String) data.get("token");
-        
+
         if (token == null || token.isEmpty()) {
-             throw new IllegalStateException("El token recuperado de SBS esta vacio");
+            throw new IllegalStateException("El token recuperado de SBS esta vacio");
         }
 
         log.info("Token de SBS recuperado exitosamente.");
 
-        // 4. Inyectar las cabeceras en el mensaje de Camel para los endpoints subsecuentes
+        // 4. Inyectar las cabeceras en el mensaje de Camel para los endpoints
+        // subsecuentes
         exchange.getIn().setHeader("Authorization", "Bearer " + token);
         exchange.getIn().setHeader("Content-Type", "application/json");
         exchange.getIn().setHeader("Accept", "*/*");

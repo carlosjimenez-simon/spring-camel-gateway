@@ -47,7 +47,8 @@ public class CompositionAuthProcessor implements Processor {
 
         IRestSecurityStrategy strategy = strategies.get(function);
         if (strategy == null) {
-            log.warn("[CompositionAuthProcessor] No existe estrategia REST para function='{}'; se omite auth.", function);
+            log.warn("[CompositionAuthProcessor] No existe estrategia REST para function='{}'; se omite auth.",
+                    function);
             return;
         }
 
