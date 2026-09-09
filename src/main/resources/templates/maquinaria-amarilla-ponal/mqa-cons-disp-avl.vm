@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <MqaConsDispAVL xmlns="http://policia.gov.co/webservice">
+      <PUSUARIO>${body.get("pUsuario")}</PUSUARIO>
+      <PTOKEN>${body.get("pToken")}</PTOKEN>
+      <PMQASERIE>${body.get("pMqaSerie")}</PMQASERIE>
+      <PMQAMOTOR>${body.get("pMqaMotor")}</PMQAMOTOR>
+      <PMQACHASIS>${body.get("pMqaChasis")}</PMQACHASIS>
+      <PDISIMEI>${body.get("pDisImei")}</PDISIMEI>
+      <PTIDPROV>${body.get("pTidProv")}</PTIDPROV>
+      <PIDEPROV>${body.get("pIdeProv")}</PIDEPROV>
+    </MqaConsDispAVL>
+  </soap12:Body>
+</soap12:Envelope>

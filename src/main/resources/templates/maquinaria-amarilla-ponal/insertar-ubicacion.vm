@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <InsertarUbicacion xmlns="http://policia.gov.co/webservice">
+      <PUSUARIO>${body.get("pUsuario")}</PUSUARIO>
+      <PTOKEN>${body.get("pToken")}</PTOKEN>
+      <PIDTRAMA>${body.get("pIdTrama")}</PIDTRAMA>
+      <PIDUNIDAD>${body.get("pIdUnidad")}</PIDUNIDAD>
+      <PTIPTRANSM>${body.get("pTipTransm")}</PTIPTRANSM>
+      <PLONGITUD>${body.get("pLongitud")}</PLONGITUD>
+      <PLATITUD>${body.get("pLatitud")}</PLATITUD>
+      <PVELOCIDAD>${body.get("pVelocidad")}</PVELOCIDAD>
+      <PDIRECCION>${body.get("pDireccion")}</PDIRECCION>
+      <PFECHAGPS>${body.get("pFechaGps")}</PFECHAGPS>
+      <PEVENTO>${body.get("pEvento")}</PEVENTO>
+      <PIGNICION>${body.get("pIgnicion")}</PIGNICION>
+      <PIP>${body.get("pIp")}</PIP>
+      <PPUERTO>${body.get("pPuerto")}</PPUERTO>
+      <PSTATUS>${body.get("pStatus")}</PSTATUS>
+      <PODOMETRO>${body.get("pOdometro")}</PODOMETRO>
+    </InsertarUbicacion>
+  </soap12:Body>
+</soap12:Envelope>

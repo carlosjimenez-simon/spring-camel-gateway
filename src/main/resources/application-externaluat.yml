@@ -145,6 +145,15 @@ simon:
       configuracion-producto: https://devsyli.sbseguros.co/sbs-api-fileProcessing/api/product/configuration/getBySponsor/jLfwl7rcx6Tduww5XuUWTA==
       generar-pdf: https://devsyli.sbseguros.co/api-int/api/v1/PdfFile
 
+    maquinaria-amarilla-ponal:
+      val-ingreso: https://logmqa.policia.gov.co/Service1.asmx
+      des-afiliar-maquina: https://logmqa.policia.gov.co/Service1.asmx
+      insertar-maquinas: https://logmqa.policia.gov.co/Service1.asmx
+      insertar-ubicacion: https://logmqa.policia.gov.co/Service1.asmx
+      insertar-unidades-de-rastreo: https://logmqa.policia.gov.co/Service1.asmx
+      mqa-cons-disp-avl: https://logmqa.policia.gov.co/Service1.asmx
+      relacion-maquina-unidad: https://logmqa.policia.gov.co/Service1.asmx
+
 audit:
   s3:
     bucket: simon-uat-camel-gateway-logs

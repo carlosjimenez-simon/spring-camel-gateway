@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <InsertarUnidadesdeRastreo xmlns="http://policia.gov.co/webservice">
+      <PUSUARIO>${body.get("pUsuario")}</PUSUARIO>
+      <PTOKEN>${body.get("pToken")}</PTOKEN>
+      <PIDUNIDAD>${body.get("pIdUnidad")}</PIDUNIDAD>
+      <PCODIMARCA>${body.get("pCodiMarca")}</PCODIMARCA>
+      <PCODILINEA>${body.get("pCodiLinea")}</PCODILINEA>
+      <PIMEI>${body.get("pImei")}</PIMEI>
+      <PTARJETA_SIM>${body.get("pTarjetaSim")}</PTARJETA_SIM>
+      <PNRO_MOVIL>${body.get("pNroMovil")}</PNRO_MOVIL>
+      <POPERADORMOVIL>${body.get("pOperadorMovil")}</POPERADORMOVIL>
+      <POPERADORSATELITAL>${body.get("pOperadorSatelital")}</POPERADORSATELITAL>
+      <POBSERVACION>${body.get("pObservacion")}</POBSERVACION>
+      <PSERIE_DISPOSITIVO>${body.get("pSerieDispositivo")}</PSERIE_DISPOSITIVO>
+    </InsertarUnidadesdeRastreo>
+  </soap12:Body>
+</soap12:Envelope>
