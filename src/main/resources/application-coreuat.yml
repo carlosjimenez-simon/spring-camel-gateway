@@ -38,9 +38,9 @@ simon:
       namespace: "NO-REQUERIDO"
   endpoint:
     simon-fineract:
-      clients: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/clients
-      savingsproducts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
-      savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
+      clients: https://ip-10-41-60-102.ec2.internal:8443/fineract-provider/api/v1/clients
+      savingsproducts: https://ip-10-41-60-102.ec2.internal:8443/fineract-provider/api/v1/savingsproducts
+      savingsaccounts: https://ip-10-41-60-102.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
 
 audit:
   s3:
