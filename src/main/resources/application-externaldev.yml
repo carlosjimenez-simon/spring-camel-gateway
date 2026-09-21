@@ -189,11 +189,13 @@ simon:
 
     enterprise:
       #Consultas
+      cotizacion: https://apipro.agentemotor.com/app/co/customers/quotation
       info-vehiculo: https://apipro.agentemotor.com/seguros/co/vehiculos/datos_add
+      info-vehiculos-caracteristicas: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/vehiculos-por-caracteristica
       consultar-linea: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-ref-abr
       consultar-marcas: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-marcas
+      geozonas-co: https://apipro.agentemotor.com/seguros/geozone/co/
 
- 
 audit:
   s3:
     bucket: simon-camel-gateway-logs
