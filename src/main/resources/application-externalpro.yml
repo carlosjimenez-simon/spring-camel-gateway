@@ -155,6 +155,12 @@ simon:
       mqa-cons-disp-avl: https://logmqa.policia.gov.co/Service1.asmx
       relacion-maquina-unidad: https://logmqa.policia.gov.co/Service1.asmx
 
+    enterprise:
+      #Consultas
+      info-vehiculo: https://apipro.agentemotor.com/seguros/co/vehiculos/datos_add
+      consultar-linea: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-ref-abr
+      consultar-marcas: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-marcas
+      
 audit:
   s3:
     bucket: simon-pro-camel-gateway-logs

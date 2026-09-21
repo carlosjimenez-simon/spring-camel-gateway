@@ -191,6 +191,12 @@ simon:
       mqa-cons-disp-avl: https://logmqa.policia.gov.co/Service1.asmx
       relacion-maquina-unidad: https://logmqa.policia.gov.co/Service1.asmx
 
+    enterprise:
+      #Consultas
+      info-vehiculo: https://apipro.agentemotor.com/seguros/co/vehiculos/datos_add
+      consultar-linea: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-ref-abr
+      consultar-marcas: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-marcas
+
     test-lab:
       operacion-ok: http://localhost:9080/ws/laboratorio/ok
       operacion-caida: http://localhost:9080/ws/laboratorio/error-503
