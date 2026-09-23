@@ -89,12 +89,12 @@ simon:
       consulta: https://developer-portal-sbx.bdf.com.co:5555/gateway/Account/1.1/BasicDataCard
       #consulta: https://webhook.site/ddba925a-3b04-4a51-86f5-0d8dd55eac82
       #Modulo Inquiries
-      cvv-dinamico: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/CVVDinamicTC
-      #cvv-dinamico: https://webhook.site/18541156-e0f1-400f-bf51-76e18ddec18c
+      #cvv-dinamico: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/CVVDinamicTC
+      cvv-dinamico: https://webhook.site/a2e3887f-3a1b-4c1a-93e8-617c3301d37f
       #consulta-movimientos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/MovementsTC
-      consulta-movimientos: https://webhook.site/d393d420-9654-4814-bc12-54710fdc889e
+      consulta-movimientos: https://webhook.site/32d6e299-b8b8-472e-9bd9-9cbb194143af
       #consulta-documentos: https://developer-portal-sbx.bdf.com.co:5555/gateway/Inquiries/1.0/DocumentsTC
-      consulta-documentos: https://webhook.site/8ce6d0fe-b5f6-4c47-a91d-ff5df64eeb2e
+      consulta-documentos: https://webhook.site/0fd58952-23b6-4afc-9342-261dd527c0ec
       #Modulo Signon
       biometria: https://developer-portal-sbx.bdf.com.co:5555/gateway/Signon/1.0/GetBiometric
       #Modulo Payments
