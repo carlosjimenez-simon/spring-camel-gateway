@@ -55,11 +55,11 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
 
         // 2. Extraer credenciales del AWS Secret Manager
         Map<String, String> secrets = _secretsService.getAwsSecret(secretName);
-        String serviceAccountJson = secrets.get("googleServiceAccountJson");
+        String serviceAccountJson = secrets.get("googleServiceAccountNotifications.sm");
 
         if (serviceAccountJson == null) {
             throw new IllegalStateException("El secreto '" + secretName
-                    + "' debe contener 'googleServiceAccountJson'.");
+                    + "' debe contener 'googleServiceAccountNotifications.sm'.");
         }
 
         com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.fromStream(
@@ -118,16 +118,66 @@ public class GoogleSheetAuthStrategy implements IRestSecurityStrategy {
         List<List<Object>> values = (List<List<Object>>) response.getBody().get("values");
 
         // 7. Lookup del codigo en columna de referencia
-        String lookupCode = datos == null ? null : asString(datos.get("id"));
+     // 7. Lookup dinámico de N criterios de búsqueda
+        List<Map<String, Object>> criteria = (List<Map<String, Object>>) xl.get("search_criteria");
         int matchIdx = -1;
-        if (values != null && lookupCode != null) {
-            for (int i = 0; i < values.size(); i++) {
-                List<Object> row = values.get(i);
-                if (row != null && row.size() >= colInit) {
-                    Object cell = row.get(colInit - 1);
-                    if (cell != null && lookupCode.trim().equals(String.valueOf(cell).trim())) {
+        String lookupCode = null; // Declaration en el scope superior
+
+        if (values != null && datos != null) {
+            
+            // CASO A: Configuración Dinámica Multi-criterio (Si se envía "search_criteria")
+            if (criteria != null && !criteria.isEmpty()) {
+                StringBuilder codeBuilder = new StringBuilder();
+                for (int i = 0; i < values.size(); i++) {
+                    List<Object> row = values.get(i);
+                    if (row == null) continue;
+
+                    boolean allMatch = true;
+                    for (Map<String, Object> crit : criteria) {
+                        int colNum = asInt(crit.get("column"));
+                        String fieldName = asString(crit.get("field"));
+                        String targetVal = asString(datos.get(fieldName));
+
+                        // Construye el identificador dinámico solo en la primera fila
+                        if (i == 0 && targetVal != null) {
+                            if (codeBuilder.length() > 0) codeBuilder.append("-");
+                            codeBuilder.append(targetVal);
+                        }
+
+                        // Validaciones para evitar NullPointerException e IndexOutOfBoundsException
+                        if (colNum <= 0 || targetVal == null || (colNum - 1) >= row.size()) {
+                            allMatch = false;
+                            break;
+                        }
+
+                        // Comparación real del contenido de la celda contra el dato recibido
+                        Object cellVal = row.get(colNum - 1);
+                        if (cellVal == null || !targetVal.trim().equalsIgnoreCase(String.valueOf(cellVal).trim())) {
+                            allMatch = false;
+                            break;
+                        }
+                    }
+
+                    if (allMatch) {
                         matchIdx = i;
                         break;
+                    }
+                }
+                lookupCode = codeBuilder.toString();
+            } 
+            // CASO B: Retrocompatibilidad por 'id' y 'column_id_init' (Si NO viene "search_criteria")
+            else {
+                lookupCode = asString(datos.get("id")); // Reutiliza la variable declarada arriba (sin 'String')
+                if (lookupCode != null) {
+                    for (int i = 0; i < values.size(); i++) {
+                        List<Object> row = values.get(i);
+                        if (row != null && row.size() >= colInit) {
+                            Object cell = row.get(colInit - 1);
+                            if (cell != null && lookupCode.trim().equalsIgnoreCase(String.valueOf(cell).trim())) {
+                                matchIdx = i;
+                                break;
+                            }
+                        }
                     }
                 }
             }
