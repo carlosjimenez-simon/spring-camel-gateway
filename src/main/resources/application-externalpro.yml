@@ -163,6 +163,33 @@ simon:
       consultar-marcas: https://apipro.agentemotor.com/seguros/co/vehicles/consultar/lista-marcas
       geozonas-co: https://apipro.agentemotor.com/seguros/geozone/co/
 
+    carsharing:
+      val-usuario-eq-car-sharing: http://rerun.com.co:10182/vayacar/ValUsuarioEqCarSharing
+      get-persona-x-ubicacion: http://rerun.com.co:10182/vayacar/getPersonaXUbicacion
+      get-vehiculos-x-geocerca-full: http://rerun.com.co:10182/vayacar/getVehiculosXGeocercaFull
+      get-vehiculos-imagen-x-split-placa: http://rerun.com.co:10182/vayacar/getVehiculosImagenXSplitPlaca
+      anular-reserva: http://rerun.com.co:10182/vayacar/anularReserva
+      cambiar-geocerca-destino-reserva: http://rerun.com.co:10182/vayacar/cambiarGeocercaDestinoReserva
+      get-reserva-activa-actual-car-sharing: http://rerun.com.co:10182/vayacar/getReservaActivaActualCarSharing
+      get-reservas-car-sharing: http://rerun.com.co:10182/vayacar/getReservasCarSharing
+      get-dcto-codigo-promo-car-sharing: http://rerun.com.co:10182/vayacar/getDctoCodigoPromoCarSharing
+      add-estado-ignicion-vehiculos: http://rerun.com.co:10182/vayacar/addEstadoIgnicionVehiculos
+      update-vehiculos-instruccion: http://rerun.com.co:10182/vayacar/updateVehiculosInstruccion
+      update-fec-fin-alquiler-vehiculos: http://rerun.com.co:10182/vayacar/updateFecFinAlquilerVehiculos
+      get-liquidacion-final-cs: http://rerun.com.co:10182/vayacar/getLiquidacionFinalCS
+      liquidar-servicio-car-sharing: http://rerun.com.co:10182/vayacar/liquidarServicioCarSharing
+      get-preguntas-calificacion-cs: http://rerun.com.co:10182/vayacar/getPreguntasCalificacionCS
+      get-tarjeta-credito-clientes: http://rerun.com.co:10182/vayacar/getTarjetaCreditoClientes
+      update-tc-cliente-debitar: http://rerun.com.co:10182/vayacar/updateTCClienteDebitar
+      eliminar-tarjeta-credito-cliente: http://rerun.com.co:10182/vayacar/eliminarTarjetaCreditoCliente
+      add-persona-vayacar: http://rerun.com.co:10182/vayacar/addPersonaVayacar
+      add-reserva: http://rerun.com.co:10182/vayacar/addReserva
+      add-reserva-alquiler: http://rerun.com.co:10182/vayacar/addReservaAlquiler
+      add-imagen-calificacion-cs: http://rerun.com.co:10182/vayacar/addImagenCalificacionCS
+      add-calificacion-reserva-cs: http://rerun.com.co:10182/vayacar/addCalificacionReservaCS
+      add-reporte-cancelacion-cs: http://rerun.com.co:10182/vayacar/addReporteCancelacionCS
+      registrar-tc: http://rerun.com.co:10182/vayacar/registrarTC
+
 audit:
   s3:
     bucket: simon-pro-camel-gateway-logs
