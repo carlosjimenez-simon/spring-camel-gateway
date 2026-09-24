@@ -23,11 +23,14 @@ public class SimitStrategy implements ISoapSecurityStrategy {
     public void apply(Exchange exchange, Map<String, Object> headerConfig, Map<String, Object> datos) throws Exception {
         List<Map<String, String>> params = (List<Map<String, String>>) headerConfig.get("function-parameters");
 
-        // 4. Armar el Map que consumirá la plantilla Velocity ${body.get(...)}
-        Map<String, Object> bodyMap = new HashMap<>();
+        // // 4. Armar el Map que consumirá la plantilla
+        // Map<String, Object> bodyMap = new HashMap<>();
+        // bodyMap.put("Documento", usuario);
+        // bodyMap.put("pClaveProv", clave);
+        // bodyMap.put("pNumeroValido", numeroValido);
 
-        // Asignar el mapa al Body de Camel
-        exchange.getIn().setBody(bodyMap);
+        // // Asignar el mapa al Body de Camel
+        // exchange.getIn().setBody(bodyMap);
 
         exchange.getIn().setHeader("Content-Type", "text/xml; charset=utf-8");
         exchange.getIn().setHeader("SOAPAction", "http://Servicios/WsEstadoCuentaAlerta");

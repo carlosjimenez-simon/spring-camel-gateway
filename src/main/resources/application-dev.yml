@@ -54,7 +54,7 @@ simon:
       savingsaccounts: https://ip-10-20-16-143.ec2.internal:8443/fineract-provider/api/v1/savingsaccounts
     simit:
       consultar: http://sIMITest.mintransporte.gov.co/SimitConsultas/Consultas.svc/ConsultarSIMIT
-      consulta-usuario: https://www3.simit.org.co/ServiciosSimit/EstadoCuentaAlerta
+      estado-cuenta: https://www3.simit.org.co/ServiciosSimit/EstadoCuentaAlerta
     simon-assiya:
       # Endpoint 4: Búsqueda de Unidades de negocio y tipos de servicios
       unidades-negocio: https://qa.wiptool.com/business/api/v1/BusinessUnit/company/693042b8c120e2c6e2d928d5/business-units/services

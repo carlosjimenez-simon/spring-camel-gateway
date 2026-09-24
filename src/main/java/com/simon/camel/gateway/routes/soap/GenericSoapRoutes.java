@@ -65,8 +65,13 @@ public class GenericSoapRoutes extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             
             // CONFIGURACIÓN PARA SOAP 1.2
-            .setHeader("Content-Type", simple("application/soap+xml; charset=utf-8; action=\"${exchangeProperty.soapNamespace}${header.TechnicalAction}\""))
-            .setHeader("SOAPAction", simple("${exchangeProperty.soapNamespace}${header.TechnicalAction}"))
+            .choice()
+                .when(header("organizacion").isEqualTo("simit"))
+                    .log("SIMIT usa SOAP 1.1, reteniendo headers de la estrategia")
+                .otherwise()
+                    .setHeader("Content-Type", simple("application/soap+xml; charset=utf-8; action=\"${exchangeProperty.soapNamespace}${header.TechnicalAction}\""))
+                    .setHeader("SOAPAction", simple("${exchangeProperty.soapNamespace}${header.TechnicalAction}"))
+            .end()
 	        
             .log("XML generado para ${header.organizacion}: ${body}")
             
