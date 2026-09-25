@@ -202,6 +202,7 @@ simon:
     carsharing:
       val-usuario-eq-car-sharing: http://rerun.com.co:10182/vayacar/ValUsuarioEqCarSharing
       get-persona-x-ubicacion: http://rerun.com.co:10182/vayacar/getPersonaXUbicacion
+      get-geocerca-cliente: http://rerun.com.co:10182/vayacar/getGeoCercasXClienteCompania
       get-vehiculos-x-geocerca-full: http://rerun.com.co:10182/vayacar/getVehiculosXGeocercaFull
       get-vehiculos-imagen-x-split-placa: http://rerun.com.co:10182/vayacar/getVehiculosImagenXSplitPlaca
       anular-reserva: http://rerun.com.co:10182/vayacar/anularReserva
