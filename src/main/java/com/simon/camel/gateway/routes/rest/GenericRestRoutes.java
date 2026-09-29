@@ -405,11 +405,11 @@ public class GenericRestRoutes extends RouteBuilder {
                 .id("cb-${header.organizacion}-${header.operacion}")
                 .resilience4jConfiguration()
                 .failureRateThreshold(50.0f)
-                .waitDurationInOpenState(30)
+                .waitDurationInOpenState(60)
                 .timeoutEnabled(true)
                 .timeoutDuration(15000)
                 .bulkheadEnabled(true)
-                .bulkheadMaxConcurrentCalls(30)
+                .bulkheadMaxConcurrentCalls(200)
                 .end()
 
                 .log("🚀 [CIRCUITO CERRADO] Pegando al backend para la operación: ${header.operacion}...")
@@ -434,7 +434,8 @@ public class GenericRestRoutes extends RouteBuilder {
 
                     exchange.setProperty("SimonUrlLog", urlCompleta);
 
-                    // Configurar las opciones del endpoint bridge de forma dinámica según sea HTTP o HTTPS
+                    // Configurar las opciones del endpoint bridge de forma dinámica según sea HTTP
+                    // o HTTPS
                     String bridgeOptions = "?bridgeEndpoint=true&throwExceptionOnFailure=false";
                     if (baseEndpoint != null && baseEndpoint.startsWith("https")) {
                         bridgeOptions += "&sslContextParameters=#sslInseguroFineract&x509HostnameVerifier=#allowAllHostnameVerifier";
