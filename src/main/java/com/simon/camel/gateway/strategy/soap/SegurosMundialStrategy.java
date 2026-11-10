@@ -12,7 +12,7 @@ import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.simon.camel.gateway.SpringCamelGatewayApplication;
+//import com.simon.camel.gateway.SpringCamelGatewayApplication;
 import com.simon.camel.gateway.services.AmazonSecretsService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,23 +20,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class SegurosMundialStrategy implements ISoapSecurityStrategy {
-    
+
     @Autowired
     private AmazonSecretsService _secretsService;
 
     @Override
-    public String getFunctionName() { return "createHeaderSegurosMundial"; }
+    public String getFunctionName() {
+        return "createHeaderSegurosMundial";
+    }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public void apply(Exchange exchange, Map<String, Object> headerConfig, Map<String, Object> datos) throws Exception {
         List<Map<String, String>> params = (List<Map<String, String>>) headerConfig.get("function-parameters");
-        
+
         String secretName = params.stream()
-            .filter(p -> "secret-name".equals(p.get("name")))
-            .map(p -> p.get("value"))
-            .findFirst()
-            .orElse("default/secret");
+                .filter(p -> "secret-name".equals(p.get("name")))
+                .map(p -> p.get("value"))
+                .findFirst()
+                .orElse("default/secret");
 
         Map<String, String> secrets = _secretsService.getAwsSecret(secretName);
 
@@ -46,18 +48,19 @@ public class SegurosMundialStrategy implements ISoapSecurityStrategy {
         log.info("clientId: {}", clientId);
         String secretKey = secrets.get("clientSecret");
         log.info("secretKey: {}", secretKey);
-        
+
         String message = timeStamp + "." + clientId + "." + datos.get("placa");
         String firma = calcularHMACSHA256(message, secretKey);
 
         exchange.getIn().setHeader("X-MUN-TIMESTAMP", timeStamp);
         exchange.getIn().setHeader("X-MUN-CLIENT", clientId);
         exchange.getIn().setHeader("X-MUN-SIGN", firma);
-        exchange.getIn().setHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((secrets.get("username") + ":" + secrets.get("password")).getBytes()));
+        exchange.getIn().setHeader("Authorization", "Basic " + Base64.getEncoder()
+                .encodeToString((secrets.get("username") + ":" + secrets.get("password")).getBytes()));
         log.info("username: {}", secrets.get("username"));
         log.info("password: {}", secrets.get("password"));
     }
-    
+
     private String calcularHMACSHA256(String data, String key) throws Exception {
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA256");

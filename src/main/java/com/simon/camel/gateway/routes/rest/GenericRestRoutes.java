@@ -399,7 +399,14 @@ public class GenericRestRoutes extends RouteBuilder {
 
                 .setHeader("Content-Type", constant("application/json"))
                 .setHeader("Accept", constant("application/json"))
+                .setHeader("User-Agent", constant("Mozilla/5.0 (compatible; SimonGateway/1.0)"))
                 .setHeader("CamelHttpMethod", header("MetodoDestino"))
+                // GET sin body ni Content-Type (evita bloqueos de WAF por GET con payload "null")
+                .choice()
+                .when(header("MetodoDestino").isEqualToIgnoreCase("GET"))
+                .setBody(constant(null))
+                .removeHeader("Content-Type")
+                .end()
 
                 .circuitBreaker()
                 .id("cb-${header.organizacion}-${header.operacion}")
