@@ -58,14 +58,19 @@ public class DockAuthStrategy implements IRestSecurityStrategy {
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
 
-        Map<String, String> authBody = new HashMap<>();
-        authBody.put("strUsuario", username);
-        authBody.put("strContrasena", password);
-        authBody.put("strNIT", NIT);
-        authBody.put("strRazonSocial", RazonSocial);
+        /*
+         * Map<String, String> authBody = new HashMap<>();
+         * authBody.put("strUsuario", username);
+         * authBody.put("strContrasena", password);
+         * authBody.put("strNIT", NIT);
+         * authBody.put("strRazonSocial", RazonSocial);
+         */
 
-        org.springframework.http.HttpEntity<Map<String, String>> request = new org.springframework.http.HttpEntity<>(
-                authBody, headers);
+        /*
+         * org.springframework.http.HttpEntity<Map<String, String>> request = new
+         * org.springframework.http.HttpEntity<>(
+         * authBody, headers);
+         */
 
         log.info("Llamando al servicio de autenticacion de carsharing...");
         org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(authUrl, request,
