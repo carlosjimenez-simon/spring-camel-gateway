@@ -14,6 +14,10 @@ public class GatewayRoutes extends RouteBuilder {
 	@Value("${netty.context-path:/simon-sprint-camel}")
     private String nettyContextPath;
 
+    // Tamaño máximo de headers HTTP aceptados por Netty (defecto de Netty/Camel: 8192)
+    @Value("${netty.max-header-size:32768}")
+    private int nettyMaxHeaderSize;
+
 	@Override
     public void configure() throws Exception {
         
@@ -23,6 +27,7 @@ public class GatewayRoutes extends RouteBuilder {
             .host("0.0.0.0") // Permite conexiones desde cualquier IP
             .port(nettyPort)      // Puerto dedicado para el tráfico de alta velocidad
             .contextPath(nettyContextPath)
+            .endpointProperty("maxHeaderSize", String.valueOf(nettyMaxHeaderSize))
             .bindingMode(RestBindingMode.auto);
     }
 }
