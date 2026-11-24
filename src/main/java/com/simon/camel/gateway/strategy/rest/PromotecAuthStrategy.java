@@ -29,13 +29,13 @@ public class PromotecAuthStrategy implements IRestSecurityStrategy {
 
         // 1. Obtener nombre del secreto
         List<Map<String, String>> params = (List<Map<String, String>>) headerConfig.get("function-parameters");
-        String secretName = "default/promotecsecret";
+        String secretName = "default/promotec-secret";
         if (params != null) {
             secretName = params.stream()
                     .filter(p -> "secret-name".equals(p.get("name")))
                     .map(p -> p.get("value"))
                     .findFirst()
-                    .orElse("default/promotecsecret");
+                    .orElse("default/promotec-ecret");
         }
 
         log.info("Buscando secreto en AWS Secrets Manager para promotec {}", secretName);
@@ -65,18 +65,29 @@ public class PromotecAuthStrategy implements IRestSecurityStrategy {
                 authBody, headers);
 
         log.info("Llamando al servicio de autenticacion de promotec (POST {})...", authUrl);
+
         org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(authUrl, request,
                 String.class);
 
-        String token = response.getBody();
+        String body = response.getBody();
 
-        if (token == null || token.isEmpty()) {
-            throw new IllegalStateException("Respuesta de auth promotecinvalida o sin data");
+        if (body == null || body.isBlank()) {
+            throw new IllegalStateException("Respuesta de auth promotec invalida o sin data");
         }
 
-        // Eliminar las comillas dobles si la respuesta las incluye ("ey...")
-        if (token.startsWith("\"") && token.endsWith("\"")) {
+        // La respuesta es un JSON: { "token": "eyJ..." }
+        String token = body.trim();
+        if (token.startsWith("{")) {
+            com.fasterxml.jackson.databind.JsonNode tokenNode = new com.fasterxml.jackson.databind.ObjectMapper()
+                    .readTree(token).get("token");
+            token = (tokenNode != null && !tokenNode.isNull()) ? tokenNode.asText() : null;
+        } else if (token.startsWith("\"") && token.endsWith("\"")) {
+            // Fallback: texto plano entre comillas ("ey...")
             token = token.substring(1, token.length() - 1);
+        }
+
+        if (token == null || token.isBlank()) {
+            throw new IllegalStateException("Respuesta de auth promotec sin campo 'token'");
         }
 
         log.info("Token de promotec recuperado exitosamente.");
